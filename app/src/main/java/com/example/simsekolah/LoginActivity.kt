@@ -16,8 +16,26 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        val username = intent.getStringExtra("username") ?: ""
+        val password = intent.getStringExtra("password") ?: ""
+
         binding.btnSignIn.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            val usernameInput = binding.etUsername.text.toString()
+            val passwordInput = binding.etPassword.text.toString()
+
+            if (usernameInput.isEmpty()) {
+                binding.etUsername.error = "Username tidak boleh kosong"
+            } else if (passwordInput.isEmpty()) {
+                binding.etPassword.error = "Password tidak boleh kosong"
+            }
+            else if (usernameInput != username || passwordInput != password) {
+                binding.etUsername.error = "Username atau password salah"
+            } else {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
     }
 }
