@@ -35,9 +35,6 @@
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="10dp"
             android:elevation="2dp" />
-
-        <!-- BANNER IKLAN (Horizontal Scroll) -->
-        <!-- BANNER VIEWPAGER -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPagerBanner"
             android:layout_width="match_parent"
