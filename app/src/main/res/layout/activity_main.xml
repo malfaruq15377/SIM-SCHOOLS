@@ -1,159 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fitsSystemWindows="true"
-    android:background="#F5F5F5"
-    android:fillViewport="true">
+    tools:context=".ui.MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/nav_main" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/menu_bottom_nav" />
 
-        <!-- HEADER -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Muhammad Alfaruq"
-            android:textStyle="bold"
-            android:textSize="18sp" />
-
-        <!-- SEARCH -->
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="12dp"
-            android:hint="Search student or task..."
-            android:textSize="14sp"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
-            android:background="@drawable/bg_search_rounded"
-            android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="10dp"
-            android:elevation="2dp" />
-
-        <!-- BANNER IKLAN (Horizontal Scroll) -->
-        <!-- BANNER VIEWPAGER -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerBanner"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="12dp"/>
-
-        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
-            android:id="@+id/dots_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:dotsColor="#838383"
-            app:dotsCornerRadius="8dp"
-            app:dotsSize="7dp"
-            app:dotsSpacing="4dp"
-            app:dotsWidthFactor="2.5"
-            app:selectedDotColor="#838383"
-            app:progressMode="true"
-            android:layout_gravity="center"
-            android:layout_marginTop="15dp"/>
-        <!-- PILIHAN -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pilihan"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="8dp">
-
-            <!-- Student -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/student"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Student"/>
-            </LinearLayout>
-
-            <!-- Teacher -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/teacher"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Teacher"/>
-            </LinearLayout>
-
-            <!-- Attendance -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/attendence"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Attendance"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upload Tugas"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTugas"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="8dp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Calender"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"/>
-
-        <CalendarView
-            android:id="@+id/calendarView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@android:color/white"/>
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

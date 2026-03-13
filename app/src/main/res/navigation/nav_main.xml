@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.simsekolah.ui.HomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/fragment_home" />
+        
+    <fragment
+        android:id="@+id/scheduleFragment"
+        android:name="com.example.simsekolah.ui.ScheduleFragment"
+        android:label="@string/schedule"
+        tools:layout="@layout/fragment_schedule" />
+        
+    <fragment
+        android:id="@+id/attendanceFragment"
+        android:name="com.example.simsekolah.ui.AttendanceFragment"
+        android:label="@string/attendance"
+        tools:layout="@layout/fragment_attendance" />
+        
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.simsekolah.ui.ProfileFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Activity tetap dideklarasikan di graph jika ingin navigasi antar activity via NavController -->
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="com.example.simsekolah.ui.LoginActivity"
+        android:label="activity_login"
+        tools:layout="@layout/activity_login" />
+        
+    <activity
+        android:id="@+id/registerActivity"
+        android:name="com.example.simsekolah.ui.RegisterActivity"
+        android:label="activity_register"
+        tools:layout="@layout/activity_register" />
+        
+</navigation>

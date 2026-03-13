@@ -57,5 +57,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.viewpager2)
     implementation(libs.dotsindicator)
+    implementation(libs.androidx.core.splashscreen)
 
 }

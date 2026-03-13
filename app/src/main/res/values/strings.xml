@@ -14,4 +14,15 @@
     <string name="or">──────── Sign Up with ────────</string>
     <string name="google">Continue with Google</string>
     <string name="facebook">Continue with Facebook</string>
+
+    // menu bottom nav
+    <string name="home">Home</string>
+    <string name="schedule">Schedule</string>
+    <string name="attendance">Attendance</string>
+    <string name="profile">Profile</string>
+
+    // Splash Screen
+    <string name="schools">SCHOOLS</string>
+    <string name="mis">MANAGEMENT INFORMATION SYSTEM</string>
+
 </resources>
