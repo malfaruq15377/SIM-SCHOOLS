@@ -1,4 +1,4 @@
-package com.example.simsekolah.kelas
+package com.example.simsekolah.utils
 
 data class Tugas(
     val tanggal: String,

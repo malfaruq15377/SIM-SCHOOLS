@@ -41,5 +41,20 @@
         android:name="com.example.simsekolah.ui.RegisterActivity"
         android:label="activity_register"
         tools:layout="@layout/activity_register" />
-        
+    <fragment
+        android:id="@+id/assignmentsFragment"
+        android:name="com.example.simsekolah.ui.AssignmentsFragment"
+        android:label="fragment_assignments"
+        tools:layout="@layout/fragment_assignments" />
+    <fragment
+        android:id="@+id/eventFragment"
+        android:name="com.example.simsekolah.ui.EventFragment"
+        android:label="fragment_event"
+        tools:layout="@layout/fragment_event" />
+    <fragment
+        android:id="@+id/feesFragment"
+        android:name="com.example.simsekolah.ui.FeesFragment"
+        android:label="fragment_fees"
+        tools:layout="@layout/fragment_fees" />
+
 </navigation>

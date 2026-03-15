@@ -57,7 +57,7 @@
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="45dp"
             android:layout_marginTop="24dp"
             android:hint="Cari informasi sekolah..."
             android:textSize="15sp"
@@ -134,7 +134,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Tugas"
+                    android:text="Assignments"
                     android:textColor="@color/md_theme_light_onSurfaceVariant"
                     android:textSize="13sp"
                     android:textStyle="bold"/>
@@ -194,7 +194,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Absensi"
+                    android:text="fees"
                     android:textColor="@color/md_theme_light_onSurfaceVariant"
                     android:textSize="13sp"
                     android:textStyle="bold"/>
