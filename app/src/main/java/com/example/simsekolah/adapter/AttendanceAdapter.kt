@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.databinding.ItemAttendanceHistoryBinding
-import com.example.simsekolah.model.AttendanceHistory
+import com.example.simsekolah.data.model.AttendanceHistory
 
 class AttendanceAdapter(private val historyList: List<AttendanceHistory>) :
     RecyclerView.Adapter<AttendanceAdapter.ViewHolder>() {

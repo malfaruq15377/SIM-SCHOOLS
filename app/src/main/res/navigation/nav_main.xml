@@ -7,53 +7,53 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.simsekolah.ui.HomeFragment"
+        android:name="com.example.simsekolah.ui.main.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/fragment_home" />
         
     <fragment
         android:id="@+id/scheduleFragment"
-        android:name="com.example.simsekolah.ui.ScheduleFragment"
+        android:name="com.example.simsekolah.ui.main.ScheduleFragment"
         android:label="@string/schedule"
         tools:layout="@layout/fragment_schedule" />
         
     <fragment
         android:id="@+id/attendanceFragment"
-        android:name="com.example.simsekolah.ui.AttendanceFragment"
+        android:name="com.example.simsekolah.ui.main.AttendanceFragment"
         android:label="@string/attendance"
         tools:layout="@layout/fragment_attendance" />
         
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.simsekolah.ui.ProfileFragment"
+        android:name="com.example.simsekolah.ui.main.ProfileFragment"
         android:label="@string/profile"
         tools:layout="@layout/fragment_profile" />
 
     <!-- Activity tetap dideklarasikan di graph jika ingin navigasi antar activity via NavController -->
     <activity
         android:id="@+id/loginActivity"
-        android:name="com.example.simsekolah.ui.LoginActivity"
+        android:name="com.example.simsekolah.ui.auth.LoginActivity"
         android:label="activity_login"
         tools:layout="@layout/activity_login" />
         
     <activity
         android:id="@+id/registerActivity"
-        android:name="com.example.simsekolah.ui.RegisterActivity"
+        android:name="com.example.simsekolah.ui.auth.RegisterActivity"
         android:label="activity_register"
         tools:layout="@layout/activity_register" />
     <fragment
         android:id="@+id/assignmentsFragment"
-        android:name="com.example.simsekolah.ui.AssignmentsFragment"
+        android:name="com.example.simsekolah.ui.dashboard.AssignmentsFragment"
         android:label="fragment_assignments"
         tools:layout="@layout/fragment_assignments" />
     <fragment
         android:id="@+id/eventFragment"
-        android:name="com.example.simsekolah.ui.EventFragment"
+        android:name="com.example.simsekolah.ui.dashboard.EventFragment"
         android:label="fragment_event"
         tools:layout="@layout/fragment_event" />
     <fragment
         android:id="@+id/feesFragment"
-        android:name="com.example.simsekolah.ui.FeesFragment"
+        android:name="com.example.simsekolah.ui.dashboard.FeesFragment"
         android:label="fragment_fees"
         tools:layout="@layout/fragment_fees" />
 

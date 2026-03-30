@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_light_background"
-    tools:context=".ui.AttendanceFragment">
+    tools:context=".ui.main.AttendanceFragment">
 
     <!-- Header Section -->
     <View
@@ -125,7 +125,7 @@
         android:id="@+id/btnAttendance"
         android:layout_width="180dp"
         android:layout_height="180dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/bg_btn_attendance"
         android:clickable="true"
         android:elevation="12dp"
@@ -163,7 +163,7 @@
         android:id="@+id/tvLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="5dp"
         android:fontFamily="@font/plus_jakarta_sans"
         android:text="Location: SMK Negeri 1 Jakarta"
         android:textColor="@color/md_theme_light_onSurfaceVariant"
@@ -178,7 +178,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/plus_jakarta_sans"
         android:text="Recent History"
         android:textColor="@color/black"
