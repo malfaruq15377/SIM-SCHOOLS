@@ -9,8 +9,8 @@
                 android:startColor="@color/blue_gradient_start"
                 android:type="linear" />
             <size
-                android:width="160dp"
-                android:height="160dp" />
+                android:width="20dp"
+                android:height="20dp" />
             <stroke
                 android:width="8dp"
                 android:color="#33FFFFFF" />
