@@ -1,60 +1,84 @@
 package com.example.simsekolah.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.simsekolah.R
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.simsekolah.adapter.AttendanceAdapter
+import com.example.simsekolah.databinding.FragmentAttendanceBinding
+import com.example.simsekolah.model.AttendanceHistory
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [AttendanceFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AttendanceFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentAttendanceBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_attendance, container, false)
+    ): View {
+        _binding = FragmentAttendanceBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AttendanceFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            AttendanceFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        updateDateTime()
+        setupHistoryList()
+        setupAction()
+    }
+
+    private fun updateDateTime() {
+        val calendar = Calendar.getInstance()
+        
+        // Format Tanggal: Senin, 20 Mei 2024
+        val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("id", "ID"))
+        binding.tvCurrentDate.text = dateFormat.format(calendar.time)
+
+        // Format Jam: 08:00 AM
+        val timeFormat = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+        binding.tvCurrentTime.text = timeFormat.format(calendar.time)
+    }
+
+    private fun setupHistoryList() {
+        // Mock Data Riwayat
+        val list = listOf(
+            AttendanceHistory("19 Mei 2024", "07:15", "Hadir Tepat Waktu"),
+            AttendanceHistory("18 Mei 2024", "07:20", "Hadir Tepat Waktu"),
+            AttendanceHistory("17 Mei 2024", "07:45", "Terlambat"),
+            AttendanceHistory("16 Mei 2024", "07:10", "Hadir Tepat Waktu")
+        )
+
+        val adapter = AttendanceAdapter(list)
+        binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvHistory.adapter = adapter
+    }
+
+    private fun setupAction() {
+        binding.btnAttendance.setOnClickListener {
+            // Simulasi Absen
+            binding.tvStatus.apply {
+                text = "Hadir"
+                setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
             }
+            
+            Toast.makeText(requireContext(), "Absensi Berhasil!", Toast.LENGTH_SHORT).show()
+            
+            // Disable button setelah absen (simulasi)
+            binding.btnAttendance.isEnabled = false
+            binding.btnAttendance.alpha = 0.5f
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

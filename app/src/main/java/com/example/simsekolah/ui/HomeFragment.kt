@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.simsekolah.R
 import com.example.simsekolah.adapter.BannerAdapter
 import com.example.simsekolah.databinding.FragmentHomeBinding
@@ -31,6 +32,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupBanner()
+        setupMenu()
     }
 
     private fun setupBanner() {
@@ -65,9 +67,29 @@ class HomeFragment : Fragment() {
         handler.postDelayed(runnable, 3000)
     }
 
+    private fun setupMenu() {
+        binding.menuAssignments.setOnClickListener {
+            findNavController().navigate(R.id.assignmentsFragment)
+        }
+
+        binding.menuEvent.setOnClickListener {
+            findNavController().navigate(R.id.eventFragment)
+        }
+
+        binding.menuFees.setOnClickListener {
+            findNavController().navigate(R.id.feesFragment)
+        }
+
+        binding.ivProfile.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        handler.removeCallbacks(runnable)
+        if (::handler.isInitialized && ::runnable.isInitialized) {
+            handler.removeCallbacks(runnable)
+        }
         _binding = null
     }
 }

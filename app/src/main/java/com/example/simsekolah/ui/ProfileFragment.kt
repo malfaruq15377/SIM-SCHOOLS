@@ -1,5 +1,6 @@
 package com.example.simsekolah.ui
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,9 +9,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.simsekolah.R
 import com.example.simsekolah.databinding.FragmentProfileBinding
 import com.example.simsekolah.utils.UserModel
@@ -25,19 +30,13 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private lateinit var userModel: UserModel
     private lateinit var mUserPreference: UserPreference
-    private var imageUri: Uri? = null
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                // 1. Tampilkan ke ImageView menggunakan Glide
-                Glide.with(this).load(it).into(binding.ivProfile)
-
-                // 2. Simpan file asli ke storage internal aplikasi
                 val savedPath = saveImageToInternalStorage(it)
-
-                // 3. Simpan path lokasinya ke SharedPreferences agar permanen
                 if (savedPath != null) {
                     saveProfilePath(savedPath)
+                    loadProfileImage()
                 }
             }
         }
@@ -56,7 +55,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                 }
 
                 receivedUser?.let {
-                    // Simpan ke SharedPreferences agar data permanen
                     mUserPreference.setUser(it)
                     userModel = it
                     populateView(it)
@@ -77,18 +75,31 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         mUserPreference = UserPreference(requireContext())
-
-        // Load data awal dari SharedPreferences
         userModel = mUserPreference.getUser()
         populateView(userModel)
+        loadProfileImage()
 
         binding.btnUpdate.setOnClickListener(this)
-
+        binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
+        
+        // Klik foto untuk detail (seperti WA)
         binding.ivProfile.setOnClickListener {
-            openGallery()
+            showImageDetail()
         }
 
+        // Klik icon plus untuk ganti foto
+        binding.btnEditPhoto.setOnClickListener {
+            openGallery()
+        }
+    }
 
+    private fun showImageDetail() {
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_image_detail)
+
+        val imageView = dialog.findViewById<ImageView>(R.id.iv_detail)
+        val btnClose = dialog.findViewById<ImageButton>(R.id.btn_close)
 
         val savedPath = getProfilePath()
         if (savedPath != null) {
@@ -96,7 +107,32 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             if (file.exists()) {
                 Glide.with(this)
                     .load(file)
-                    .placeholder(R.drawable.ic_profile) // Gambar default jika loading
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(imageView)
+            }
+        } else {
+            imageView.setImageResource(R.drawable.ic_profile)
+        }
+
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun loadProfileImage() {
+        val savedPath = getProfilePath()
+        if (savedPath != null) {
+            val file = File(savedPath)
+            if (file.exists()) {
+                Glide.with(this)
+                    .load(file)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .placeholder(R.drawable.ic_profile)
+                    .circleCrop()
                     .into(binding.ivProfile)
             }
         }
@@ -132,19 +168,17 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
         return sharedPref.getString("profile_path", null)
     }
+
     private fun saveImageToInternalStorage(uri: Uri): String? {
         return try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
             val fileName = "profile_picture.jpg"
             val file = File(requireContext().filesDir, fileName)
             val outputStream = FileOutputStream(file)
-
             inputStream?.copyTo(outputStream)
-
             inputStream?.close()
             outputStream.close()
-
-            file.absolutePath // Mengembalikan lokasi file yang baru disimpan
+            file.absolutePath
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -168,5 +202,4 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         super.onDestroyView()
         _binding = null
     }
-
 }

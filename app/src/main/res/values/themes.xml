@@ -33,5 +33,15 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BottomNavText.Inactive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
     <style name="Theme.SIMSekolah" parent="Base.Theme.SIMSekolah" />
 </resources>
