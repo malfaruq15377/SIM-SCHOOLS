@@ -37,12 +37,13 @@
                 android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/iv_setting"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
                 android:padding="8dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_notification"
+                android:src="@drawable/ic_setting"
                 android:background="?attr/selectableItemBackgroundBorderless" />
 
         </androidx.appcompat.widget.Toolbar>
@@ -346,29 +347,17 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ACTIONS -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_update"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
                 android:text="Update Information"
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_logout"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:text="Log Out"
-                android:textColor="#E03131"
-                android:textAllCaps="false"
-                android:textSize="16sp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

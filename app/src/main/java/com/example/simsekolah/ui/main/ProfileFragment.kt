@@ -28,7 +28,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var userModel: UserModel
     private lateinit var mUserPreference: UserPreference
     private val pickImageLauncher =
@@ -81,6 +80,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         loadProfileImage()
 
         binding.btnUpdate.setOnClickListener(this)
+        binding.ivSetting.setOnClickListener(this)
         binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
 
         // Klik foto untuk detail (seperti WA)
@@ -191,11 +191,17 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (v?.id == com.example.simsekolah.R.id.btn_update) {
-            val intent = Intent(requireContext(), FormUserActivity::class.java)
-            intent.putExtra(FormUserActivity.Companion.EXTRA_TYPE_FORM, FormUserActivity.Companion.TYPE_EDIT)
-            intent.putExtra(FormUserActivity.Companion.EXTRA_RESULT, userModel)
-            resultLauncher.launch(intent)
+        when (v?.id) {
+            com.example.simsekolah.R.id.btn_update -> {
+                val intent = Intent(requireContext(), FormUserActivity::class.java)
+                intent.putExtra(FormUserActivity.Companion.EXTRA_TYPE_FORM, FormUserActivity.Companion.TYPE_EDIT)
+                intent.putExtra(FormUserActivity.Companion.EXTRA_RESULT, userModel)
+                resultLauncher.launch(intent)
+            }
+            com.example.simsekolah.R.id.iv_setting -> {
+                val intent = Intent(requireContext(), SettingActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 

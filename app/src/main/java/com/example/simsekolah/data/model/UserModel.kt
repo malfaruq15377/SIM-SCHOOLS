@@ -17,4 +17,5 @@ data class UserModel(
     var noPhone: String? = null,
     var age: Int = 0,
     var image: String? = null,
+    var role: String? = null // Added role: "guru" or "murid"
 ): Parcelable

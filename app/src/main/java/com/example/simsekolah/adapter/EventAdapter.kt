@@ -1,5 +1,6 @@
 package com.example.simsekolah.adapter
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ class EventAdapter(private val eventList: List<EventModel>) :
         val tvEventTitle: TextView = view.findViewById(R.id.tvEventTitle)
         val tvEventTime: TextView = view.findViewById(R.id.tvEventTime)
         val tvEventLocation: TextView = view.findViewById(R.id.tvEventLocation)
+        val viewIndicator: View = view.findViewById(R.id.viewIndicator)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
@@ -32,6 +34,11 @@ class EventAdapter(private val eventList: List<EventModel>) :
         holder.tvEventTitle.text = event.title
         holder.tvEventTime.text = event.time
         holder.tvEventLocation.text = event.location
+        
+        // Set warna indikator secara dinamis
+        if (event.color != 0) {
+            holder.viewIndicator.backgroundTintList = ColorStateList.valueOf(event.color)
+        }
     }
 
     override fun getItemCount(): Int = eventList.size

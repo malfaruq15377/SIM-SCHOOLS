@@ -48,8 +48,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- Yellow side indicator -->
+            <!-- Dynamic side indicator -->
             <View
+                android:id="@+id/viewIndicator"
                 android:layout_width="6dp"
                 android:layout_height="match_parent"
                 android:background="#EAB308" />
@@ -101,7 +102,6 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <!-- Pin Icon - Assuming you might need to use a generic one or create it -->
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"

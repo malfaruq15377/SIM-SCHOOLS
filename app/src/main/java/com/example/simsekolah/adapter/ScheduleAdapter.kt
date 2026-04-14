@@ -3,10 +3,10 @@ package com.example.simsekolah.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.data.model.Schedule
+import com.example.simsekolah.data.remote.repository.JadwalItem
 import com.example.simsekolah.databinding.ItemScheduleBinding
 
-class ScheduleAdapter(private val listSchedule: List<Schedule>) :
+class ScheduleAdapter(private var listSchedule: List<JadwalItem>) :
     RecyclerView.Adapter<ScheduleAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemScheduleBinding) : RecyclerView.ViewHolder(binding.root)
@@ -16,13 +16,18 @@ class ScheduleAdapter(private val listSchedule: List<Schedule>) :
         return ViewHolder(binding)
     }
 
+    fun updateData(newList: List<JadwalItem>) {
+        listSchedule = newList
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = listSchedule[position]
         holder.binding.apply {
-            tvTime.text = item.time
-            tvSubject.text = item.subject
-            tvRoom.text = item.room
-            tvTeacher.text = item.teacher
+            tvTime.text = "${item.jamMulai} - ${item.jamSelesai}"
+            tvSubject.text = item.mapelId // Idealnya ini nama mapel, perlu join/lookup jika API hanya kirim ID
+            tvRoom.text = item.kelasId  // Idealnya ini nama kelas
+            tvTeacher.text = item.guruId // Idealnya ini nama guru
         }
     }
 

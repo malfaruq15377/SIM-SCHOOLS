@@ -18,6 +18,7 @@ class UserPreference(context: Context) {
         private const val WEIGHT = "weight"
         private const val HEIGHT = "height"
         private const val DATE_OF_BIRTH = "date_of_birth"
+        private const val ROLE = "role"
     }
 
     private val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -35,6 +36,7 @@ class UserPreference(context: Context) {
             putFloat(WEIGHT, value.weight.toFloat())
             putFloat(HEIGHT, value.height.toFloat())
             putString(DATE_OF_BIRTH, value.dateOfBirth)
+            putString(ROLE, value.role)
         }
     }
 
@@ -50,7 +52,12 @@ class UserPreference(context: Context) {
             motherName = preferences.getString(MOTHER_NAME, ""),
             weight = preferences.getFloat(WEIGHT, 0f).toDouble(),
             height = preferences.getFloat(HEIGHT, 0f).toDouble(),
-            dateOfBirth = preferences.getString(DATE_OF_BIRTH, "")
+            dateOfBirth = preferences.getString(DATE_OF_BIRTH, ""),
+            role = preferences.getString(ROLE, "")
         )
+    }
+
+    fun logout() {
+        preferences.edit { clear() }
     }
 }
