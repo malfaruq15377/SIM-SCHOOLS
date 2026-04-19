@@ -124,29 +124,6 @@
                     android:textColor="@color/md_theme_light_onPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/layout_register"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="24dp"
-                    android:paddingBottom="16dp">
-                    <TextView
-                        android:id="@+id/create_account"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Don't have an account?"
-                        android:textColor="@color/md_theme_light_onSurfaceVariant" />
-                    <TextView
-                        android:id="@+id/create_account_regis"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" Register"
-                        android:textColor="@color/md_theme_light_primary"
-                        android:textStyle="bold" />
-                </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </androidx.cardview.widget.CardView>

@@ -1,12 +1,11 @@
-package com.example.simsekolah.ui.main
+package com.example.simsekolah.ui.schedule
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.adapter.DayScheduleAdapter
 import com.example.simsekolah.data.remote.response.JadwalItem
-import com.example.simsekolah.SchoolRepository
+import com.example.simsekolah.data.repository.SchoolRepository
 import kotlinx.coroutines.launch
 
 class ScheduleViewModel(private val repository: SchoolRepository) : ViewModel() {
@@ -42,7 +41,7 @@ class ScheduleViewModel(private val repository: SchoolRepository) : ViewModel() 
 
     private fun groupSchedulesByDay(list: List<JadwalItem>): List<DayScheduleAdapter.DaySchedule> {
         val daysOrder = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-        
+
         return daysOrder.map { dayName ->
             val itemsForDay = list.filter { it.hari.equals(dayName, ignoreCase = true) }
             DayScheduleAdapter.DaySchedule(

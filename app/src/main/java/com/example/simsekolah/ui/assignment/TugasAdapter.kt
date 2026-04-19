@@ -1,15 +1,14 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.assignment
 
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.ItemTugasBinding
+import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.ui.main.SubmitTugasActivity
-import android.content.Intent
 
 class TugasAdapter(
     private var listTugas: List<TugasModel>,
@@ -28,7 +27,7 @@ class TugasAdapter(
 
     override fun onBindViewHolder(holder: TugasViewHolder, position: Int) {
         val displayList = if (!isGuru) listTugas.filter { !it.isDone } else listTugas
-        
+
         if (position >= displayList.size) return
         val data = displayList[position]
 
@@ -44,7 +43,7 @@ class TugasAdapter(
                 btnDelete.setOnClickListener {
                     onDeleteClicked(data)
                 }
-                
+
                 root.setCardBackgroundColor(Color.WHITE)
                 tvTitle.setTextColor(Color.parseColor("#4F46E5"))
             } else {

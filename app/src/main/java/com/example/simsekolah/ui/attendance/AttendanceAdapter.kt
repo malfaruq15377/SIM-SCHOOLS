@@ -1,4 +1,4 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.attendance
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -32,12 +32,12 @@ class AttendanceAdapter(private var historyList: List<AbsensiItem>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = historyList[position]
         holder.binding.apply {
-            
+
             // Format Tanggal dan Jam dari string (Asumsi format: "yyyy-MM-dd HH:mm:ss")
             try {
                 val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 val date = inputFormat.parse(item.tanggal)
-                
+
                 if (date != null) {
                     val outDate = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID")).format(date)
                     val outTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
@@ -53,14 +53,14 @@ class AttendanceAdapter(private var historyList: List<AbsensiItem>) :
             }
 
             tvHistoryStatus.text = item.status
-            
+
             // Parsing Nama dan Keterangan (Format: "NAMA|KETERANGAN")
             val combinedData = item.keterangan ?: ""
             if (combinedData.contains("|")) {
                 val parts = combinedData.split("|")
                 tvHistoryName.text = parts[0]
                 val realKeterangan = if (parts.size > 1) parts[1] else ""
-                
+
                 if (realKeterangan.isNotEmpty()) {
                     tvHistoryDescription.visibility = View.VISIBLE
                     tvHistoryDescription.text = realKeterangan

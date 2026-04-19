@@ -1,4 +1,4 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.schedule
 
 import android.view.LayoutInflater
 import android.view.View

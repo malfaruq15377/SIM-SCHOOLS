@@ -1,6 +1,6 @@
-package com.example.simsekolah.ui.main
+package com.example.simsekolah.ui.settings
 
-import android.content.Context
+import android.R
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.simsekolah.UserPreference
+import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.databinding.ActivitySettingBinding
 import com.example.simsekolah.databinding.DialogChangePasswordBinding
 import com.example.simsekolah.ui.auth.LoginActivity
@@ -47,7 +47,7 @@ class SettingActivity : AppCompatActivity() {
             .setCancelable(false)
             .create()
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setBackgroundDrawableResource(R.color.transparent)
 
         dialogBinding.btnCancel.setOnClickListener {
             dialog.dismiss()
@@ -81,11 +81,11 @@ class SettingActivity : AppCompatActivity() {
     private fun updatePassword(password: String, dialog: AlertDialog) {
         lifecycleScope.launch {
             Toast.makeText(this@SettingActivity, "Updating password...", Toast.LENGTH_SHORT).show()
-            
-            delay(1500) 
+
+            delay(1500)
 
             // SIMPAN KE PREFERENCES AGAR PERMANEN UNTUK TESTING LOGIN
-            val sharedPref = getSharedPreferences("TempPassword", Context.MODE_PRIVATE)
+            val sharedPref = getSharedPreferences("TempPassword", MODE_PRIVATE)
             sharedPref.edit().putString("custom_password", password).apply()
 
             Toast.makeText(this@SettingActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()

@@ -1,13 +1,13 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.utils
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.simsekolah.SchoolRepository
+import com.example.simsekolah.data.repository.SchoolRepository
 import com.example.simsekolah.di.Injection
 import com.example.simsekolah.ui.auth.LoginViewModel
-import com.example.simsekolah.ui.main.AttendanceViewModel
-import com.example.simsekolah.ui.main.ScheduleViewModel
+import com.example.simsekolah.ui.attendance.AttendanceViewModel
+import com.example.simsekolah.ui.schedule.ScheduleViewModel
 
 class ViewModelFactory(private val repository: SchoolRepository) : ViewModelProvider.NewInstanceFactory() {
 

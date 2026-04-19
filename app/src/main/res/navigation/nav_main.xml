@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.simsekolah.ui.main.HomeFragment"
+        android:name="com.example.simsekolah.ui.home.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/fragment_home" />
         
     <fragment
         android:id="@+id/scheduleFragment"
-        android:name="com.example.simsekolah.ui.main.ScheduleFragment"
+        android:name="com.example.simsekolah.ui.schedule.ScheduleFragment"
         android:label="@string/schedule"
         tools:layout="@layout/fragment_schedule" />
         
     <fragment
         android:id="@+id/attendanceFragment"
-        android:name="com.example.simsekolah.ui.main.AttendanceFragment"
+        android:name="com.example.simsekolah.ui.attendance.AttendanceFragment"
         android:label="@string/attendance"
         tools:layout="@layout/fragment_attendance" />
         
@@ -43,17 +43,17 @@
         tools:layout="@layout/activity_register" />
     <fragment
         android:id="@+id/assignmentsFragment"
-        android:name="com.example.simsekolah.ui.dashboard.AssignmentsFragment"
+        android:name="com.example.simsekolah.ui.assignment.AssignmentsFragment"
         android:label="fragment_assignments"
         tools:layout="@layout/fragment_assignments" />
     <fragment
         android:id="@+id/eventFragment"
-        android:name="com.example.simsekolah.ui.dashboard.EventFragment"
+        android:name="com.example.simsekolah.ui.event.EventFragment"
         android:label="fragment_event"
         tools:layout="@layout/fragment_event" />
     <fragment
         android:id="@+id/feesFragment"
-        android:name="com.example.simsekolah.ui.dashboard.FeesFragment"
+        android:name="com.example.simsekolah.ui.fees.FeesFragment"
         android:label="fragment_fees"
         tools:layout="@layout/fragment_fees" />
 

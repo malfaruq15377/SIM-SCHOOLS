@@ -1,4 +1,4 @@
-package com.example.simsekolah
+package com.example.simsekolah.data.local.preference
 
 import android.content.Context
 import androidx.core.content.edit

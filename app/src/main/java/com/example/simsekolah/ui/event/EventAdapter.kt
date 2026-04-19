@@ -1,4 +1,4 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.event
 
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -38,7 +38,7 @@ class EventAdapter(
         holder.tvEventTitle.text = event.title
         holder.tvEventTime.text = event.time
         holder.tvEventLocation.text = event.location
-        
+
         if (event.color != 0) {
             holder.viewIndicator.backgroundTintList = ColorStateList.valueOf(event.color)
         }

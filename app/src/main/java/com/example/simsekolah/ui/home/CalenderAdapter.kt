@@ -1,4 +1,4 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.home
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable

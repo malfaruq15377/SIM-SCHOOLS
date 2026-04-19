@@ -7,15 +7,15 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.simsekolah.R
-import com.example.simsekolah.UserPreference
+import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.databinding.ActivityLoginBinding
-import com.example.simsekolah.model.ViewModelFactory
+import com.example.simsekolah.utils.ViewModelFactory
 import com.example.simsekolah.ui.main.MainActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var userPreference: UserPreference
-    
+
     // Pastikan import LoginViewModel mengarah ke ui.auth
     private val viewModel: LoginViewModel by viewModels {
         ViewModelFactory.getInstance(this)
@@ -27,9 +27,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         userPreference = UserPreference(this)
-
-        // Sembunyikan navigasi register sesuai permintaan
-        binding.layoutRegister.visibility = View.GONE
 
         setupAction()
         observeViewModel()

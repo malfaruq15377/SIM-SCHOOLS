@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.example.simsekolah.R
-import com.example.simsekolah.UserPreference
+import com.example.simsekolah.data.local.preference.UserPreference
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {

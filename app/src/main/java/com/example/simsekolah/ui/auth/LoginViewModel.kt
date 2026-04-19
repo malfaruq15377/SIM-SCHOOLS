@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.SchoolRepository
+import com.example.simsekolah.data.repository.SchoolRepository
 import com.example.simsekolah.model.UserModel
 import kotlinx.coroutines.launch
 

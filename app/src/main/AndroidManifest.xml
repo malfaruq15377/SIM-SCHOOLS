@@ -32,7 +32,7 @@
             android:name=".ui.main.SubmitTugasActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.main.SettingActivity"
+            android:name=".ui.settings.SettingActivity"
             android:exported="false" />
         <activity
             android:name=".ui.form.FormUserActivity"

@@ -1,4 +1,4 @@
-package com.example.simsekolah.adapter
+package com.example.simsekolah.ui.assignment
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -7,8 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
 import com.example.simsekolah.databinding.ItemSubmissionStatusBinding
 import com.example.simsekolah.model.SubmissionModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 class SubmissionAdapter(
     private var list: List<SubmissionModel>,
@@ -31,7 +29,7 @@ class SubmissionAdapter(
         val data = list[position]
         holder.binding.apply {
             tvStudentName.text = data.studentName
-            
+
             when {
                 data.isCompleted -> {
                     // SUDAH MENGERJAKAN -> HIJAU
@@ -49,7 +47,7 @@ class SubmissionAdapter(
                     // BELUM MENAMBAHKAN (Masih ada waktu) -> ABU-ABU
                     tvStudentName.setTextColor(Color.parseColor("#777777"))
                     tvStatus.text = "Pending"
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_pending) 
+                    tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
                     // Kita bisa buat bg_status_gray jika ingin backgroundnya abu juga
                 }
             }

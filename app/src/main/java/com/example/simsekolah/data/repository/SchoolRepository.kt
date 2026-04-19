@@ -1,4 +1,4 @@
-package com.example.simsekolah
+package com.example.simsekolah.data.repository
 
 import com.example.simsekolah.data.local.room.SekolahDao
 import com.example.simsekolah.data.remote.retrofit.ApiService

@@ -1,11 +1,11 @@
-package com.example.simsekolah.ui.main
+package com.example.simsekolah.ui.attendance
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.simsekolah.data.remote.response.AbsensiItem
-import com.example.simsekolah.SchoolRepository
+import com.example.simsekolah.data.repository.SchoolRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -50,12 +50,12 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
             try {
                 val currentList = _attendanceList.value?.toMutableList() ?: mutableListOf()
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                
+
                 val combinedData = "$userName|$keterangan"
-                
+
                 val newItem = AbsensiItem(
                     id = System.currentTimeMillis().toString(),
-                    muridId = "1", 
+                    muridId = "1",
                     tanggal = sdf.format(Date()),
                     status = status,
                     keterangan = combinedData
@@ -63,7 +63,7 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
                 currentList.add(0, newItem)
                 _attendanceList.value = currentList
                 _postResult.value = true
-                
+
             } catch (e: Exception) {
                 _errorMessage.value = e.message
                 _postResult.value = false
