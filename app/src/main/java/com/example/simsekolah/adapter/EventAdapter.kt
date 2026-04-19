@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
-import com.example.simsekolah.data.model.EventModel
+import com.example.simsekolah.model.EventModel
 
 class EventAdapter(
     private var eventList: List<EventModel>,

@@ -1,4 +1,4 @@
-package com.example.simsekolah.data.model
+package com.example.simsekolah.model
 
 data class Schedule(
     val time: String,

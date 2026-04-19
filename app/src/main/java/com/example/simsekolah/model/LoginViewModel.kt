@@ -1,11 +1,10 @@
-package com.example.simsekolah.ui.auth
+package com.example.simsekolah.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.simsekolah.SchoolRepository
-import com.example.simsekolah.model.UserModel
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
@@ -16,11 +15,11 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun login(emailInput: String, passwordInput: String, role: String) {
-        val email = emailInput.trim()
+    fun login(usernameInput: String, passwordInput: String, role: String) {
+        val username = usernameInput.trim()
         val password = passwordInput.trim()
 
-        if (email.isEmpty()) {
+        if (username.isEmpty()) {
             _loginResult.value = Result.failure(Exception("Email tidak boleh kosong"))
             return
         }
@@ -32,10 +31,8 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Endpoint login biasanya sama untuk semua role, atau dipisahkan di API.
-                // Berdasarkan request Anda sebelumnya, kita pakai loginSiswa untuk role siswa.
-                if (role.equals("siswa", ignoreCase = true) || role.equals("murid", ignoreCase = true)) {
-                    repository.loginSiswa(email, password).collect { response ->
+                if (role.equals("siswa", ignoreCase = true)) {
+                    repository.loginSiswa(username, password).collect { response ->
                         if (response.data.token.isNotEmpty()) {
                             _loginResult.value = Result.success(
                                 UserModel(
@@ -49,18 +46,11 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
                         }
                     }
                 } else {
-                    // Placeholder untuk login guru
-                    _loginResult.value = Result.failure(Exception("Login untuk guru belum terhubung ke API"))
+                    // Implementasi login guru jika ada endpointnya, sementara pakai logic lama atau sesuaikan
+                    _loginResult.value = Result.failure(Exception("Login untuk role $role belum diimplementasikan dengan API"))
                 }
-            } catch (e: retrofit2.HttpException) {
-                val errorMsg = when (e.code()) {
-                    401 -> "Email atau password salah"
-                    404 -> "Endpoint login tidak ditemukan (404). Periksa ApiService."
-                    else -> "Terjadi kesalahan server (${e.code()})"
-                }
-                _loginResult.value = Result.failure(Exception(errorMsg))
             } catch (e: Exception) {
-                _loginResult.value = Result.failure(Exception("Koneksi gagal: ${e.message}"))
+                _loginResult.value = Result.failure(Exception("Login gagal: ${e.message}"))
             } finally {
                 _isLoading.value = false
             }

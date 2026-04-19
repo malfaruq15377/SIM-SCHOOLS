@@ -15,9 +15,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.simsekolah.R
 import com.example.simsekolah.adapter.BannerAdapter
 import com.example.simsekolah.adapter.TugasAdapter
-import com.example.simsekolah.data.model.TugasModel
+import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.FragmentHomeBinding
-import com.example.simsekolah.data.local.UserPreference
+import com.example.simsekolah.UserPreference
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

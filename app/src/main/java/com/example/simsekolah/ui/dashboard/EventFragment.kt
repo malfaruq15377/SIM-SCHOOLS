@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -24,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
 import com.example.simsekolah.adapter.CalendarAdapter
 import com.example.simsekolah.adapter.EventAdapter
-import com.example.simsekolah.data.model.EventModel
+import com.example.simsekolah.model.EventModel
 import com.example.simsekolah.databinding.DialogAddEventBinding
 import com.example.simsekolah.receiver.AlarmReceiver
 import com.google.gson.Gson

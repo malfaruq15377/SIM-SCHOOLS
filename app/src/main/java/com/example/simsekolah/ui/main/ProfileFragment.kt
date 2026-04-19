@@ -19,8 +19,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.simsekolah.databinding.FragmentProfileBinding
 import com.example.simsekolah.ui.form.FormUserActivity
-import com.example.simsekolah.data.model.UserModel
-import com.example.simsekolah.data.local.UserPreference
+import com.example.simsekolah.model.UserModel
+import com.example.simsekolah.UserPreference
 import java.io.File
 import java.io.FileOutputStream
 

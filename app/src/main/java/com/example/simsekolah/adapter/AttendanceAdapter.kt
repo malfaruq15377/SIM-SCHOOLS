@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.data.remote.repository.AbsensiItem
+import com.example.simsekolah.data.remote.response.AbsensiItem
 import com.example.simsekolah.databinding.ItemAttendanceHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.Locale

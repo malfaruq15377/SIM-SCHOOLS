@@ -10,7 +10,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.simsekolah.data.model.TugasModel
+import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.ActivitySubmitTugasBinding
 
 class SubmitTugasActivity : AppCompatActivity() {

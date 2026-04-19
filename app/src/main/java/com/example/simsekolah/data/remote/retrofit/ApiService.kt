@@ -1,6 +1,6 @@
 package com.example.simsekolah.data.remote.retrofit
 
-import com.example.simsekolah.data.remote.repository.*
+import com.example.simsekolah.data.remote.response.*
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -8,6 +8,13 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ApiService {
+    @FormUrlEncoded
+    @POST("siswa/login")
+    suspend fun loginSiswa(
+        @Field("email") email: String,
+        @Field("password") password: String
+    ): LoginResponse
+
     @GET("mapel")
     suspend fun getMapel(): BaseResponse<List<MapelItem>>
 

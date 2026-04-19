@@ -1,9 +1,17 @@
-package com.example.simsekolah.data.remote.repository
+package com.example.simsekolah
 
+import com.example.simsekolah.data.local.room.SekolahDao
 import com.example.simsekolah.data.remote.retrofit.ApiService
 import kotlinx.coroutines.flow.flow
 
-class SchoolRepository(private val apiService: ApiService) {
+class SchoolRepository(
+    private val apiService: ApiService,
+    private val sekolahDao: SekolahDao
+) {
+
+    fun loginSiswa(email: String, pass: String) = flow {
+        emit(apiService.loginSiswa(email, pass))
+    }
 
     fun getMapel() = flow { emit(apiService.getMapel()) }
     fun getKelas() = flow { emit(apiService.getKelas()) }
@@ -16,12 +24,14 @@ class SchoolRepository(private val apiService: ApiService) {
     fun getPengumuman() = flow { emit(apiService.getPengumuman()) }
     fun getSuperAdmin() = flow { emit(apiService.getSuperAdmin()) }
 
+    fun getLocalSekolah() = sekolahDao.getAllSekolah()
+
     companion object {
         @Volatile
         private var instance: SchoolRepository? = null
-        fun getInstance(apiService: ApiService): SchoolRepository =
+        fun getInstance(apiService: ApiService, sekolahDao: SekolahDao): SchoolRepository =
             instance ?: synchronized(this) {
-                instance ?: SchoolRepository(apiService)
+                instance ?: SchoolRepository(apiService, sekolahDao)
             }.also { instance = it }
     }
 }

@@ -3,7 +3,7 @@ package com.example.simsekolah.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.data.remote.repository.JadwalItem
+import com.example.simsekolah.data.remote.response.JadwalItem
 import com.example.simsekolah.databinding.ItemScheduleBinding
 
 class ScheduleAdapter(private var listSchedule: List<JadwalItem>) :

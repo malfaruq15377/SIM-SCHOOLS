@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.simsekolah.adapter.DayScheduleAdapter
 import com.example.simsekolah.databinding.FragmentScheduleBinding
-import com.example.simsekolah.data.model.ViewModelFactory
+import com.example.simsekolah.model.ViewModelFactory
 
 class ScheduleFragment : Fragment() {
 
@@ -18,7 +18,7 @@ class ScheduleFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: ScheduleViewModel by viewModels {
-        ViewModelFactory.getInstance()
+        ViewModelFactory.getInstance(requireContext())
     }
 
     private lateinit var dayScheduleAdapter: DayScheduleAdapter

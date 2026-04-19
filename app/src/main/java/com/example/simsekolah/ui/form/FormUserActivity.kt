@@ -9,7 +9,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.simsekolah.R
 import com.example.simsekolah.databinding.ActivityFormUserBinding
-import com.example.simsekolah.data.model.UserModel
+import com.example.simsekolah.model.UserModel
 import java.util.Calendar
 
 class FormUserActivity : AppCompatActivity(), View.OnClickListener {

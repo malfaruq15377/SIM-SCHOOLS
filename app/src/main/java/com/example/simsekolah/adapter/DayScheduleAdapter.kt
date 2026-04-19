@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
-import com.example.simsekolah.data.remote.repository.JadwalItem
+import com.example.simsekolah.data.remote.response.JadwalItem
 import com.example.simsekolah.databinding.ItemDayScheduleBinding
 import com.example.simsekolah.databinding.ItemScheduleRowBinding
 

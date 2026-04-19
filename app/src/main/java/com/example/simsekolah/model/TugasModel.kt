@@ -1,4 +1,4 @@
-package com.example.simsekolah.data.model
+package com.example.simsekolah.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

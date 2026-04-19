@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.simsekolah.adapter.DayScheduleAdapter
-import com.example.simsekolah.data.remote.repository.JadwalItem
-import com.example.simsekolah.data.remote.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.JadwalItem
+import com.example.simsekolah.SchoolRepository
 import kotlinx.coroutines.launch
 
 class ScheduleViewModel(private val repository: SchoolRepository) : ViewModel() {

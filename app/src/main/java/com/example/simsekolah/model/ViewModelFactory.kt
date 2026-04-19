@@ -1,10 +1,11 @@
-package com.example.simsekolah.data.model
+package com.example.simsekolah.model
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.simsekolah.data.remote.repository.SchoolRepository
-import com.example.simsekolah.data.remote.retrofit.ApiConfig
-import com.example.simsekolah.ui.auth.LoginViewModel
+import com.example.simsekolah.SchoolRepository
+import com.example.simsekolah.di.Injection
+import com.example.simsekolah.model.LoginViewModel
 import com.example.simsekolah.ui.main.AttendanceViewModel
 import com.example.simsekolah.ui.main.ScheduleViewModel
 
@@ -27,11 +28,9 @@ class ViewModelFactory(private val repository: SchoolRepository) : ViewModelProv
     companion object {
         @Volatile
         private var instance: ViewModelFactory? = null
-        fun getInstance(): ViewModelFactory =
+        fun getInstance(context: Context): ViewModelFactory =
             instance ?: synchronized(this) {
-                val apiService = ApiConfig.getApiService()
-                val repository = SchoolRepository.Companion.getInstance(apiService)
-                instance ?: ViewModelFactory(repository)
+                instance ?: ViewModelFactory(Injection.provideRepository(context))
             }.also { instance = it }
     }
 }

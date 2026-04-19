@@ -1,4 +1,4 @@
-package com.example.simsekolah.data.remote.repository
+package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 

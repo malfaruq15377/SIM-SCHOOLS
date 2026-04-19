@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.data.remote.repository.AbsensiItem
-import com.example.simsekolah.data.remote.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.AbsensiItem
+import com.example.simsekolah.SchoolRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -48,13 +48,9 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Untuk sementara kita manipulasi list lokal agar langsung muncul di UI (Mocking)
-                // Kita simpan nama di field keterangan atau bisa tambahkan field baru jika mau
-                // Di sini saya simpan nama di awal keterangan agar bisa diparsing di Adapter
                 val currentList = _attendanceList.value?.toMutableList() ?: mutableListOf()
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 
-                // Format: "NAMA_USER|KETERANGAN_ASLI"
                 val combinedData = "$userName|$keterangan"
                 
                 val newItem = AbsensiItem(

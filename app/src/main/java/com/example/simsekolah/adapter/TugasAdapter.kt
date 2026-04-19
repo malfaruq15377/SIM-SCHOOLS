@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.data.model.TugasModel
+import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.ItemTugasBinding
 import com.example.simsekolah.ui.main.SubmitTugasActivity
 import com.google.gson.Gson

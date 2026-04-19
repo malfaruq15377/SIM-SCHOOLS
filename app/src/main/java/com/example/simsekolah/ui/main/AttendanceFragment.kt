@@ -13,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -23,9 +22,9 @@ import com.example.simsekolah.R
 import com.example.simsekolah.adapter.AttendanceAdapter
 import com.example.simsekolah.databinding.FragmentAttendanceBinding
 import com.example.simsekolah.databinding.DialogAttendanceFormBinding
-import com.example.simsekolah.data.model.ViewModelFactory
-import com.example.simsekolah.data.local.UserPreference
-import com.example.simsekolah.data.remote.repository.AbsensiItem
+import com.example.simsekolah.model.ViewModelFactory
+import com.example.simsekolah.UserPreference
+import com.example.simsekolah.data.remote.response.AbsensiItem
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
@@ -39,7 +38,7 @@ class AttendanceFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: AttendanceViewModel by viewModels {
-        ViewModelFactory.getInstance()
+        ViewModelFactory.getInstance(requireContext())
     }
 
     private lateinit var adapter: AttendanceAdapter

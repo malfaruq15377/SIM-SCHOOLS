@@ -12,8 +12,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.simsekolah.adapter.TugasAdapter
-import com.example.simsekolah.data.local.UserPreference
-import com.example.simsekolah.data.model.TugasModel
+import com.example.simsekolah.UserPreference
+import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.DialogAddTugasBinding
 import com.example.simsekolah.databinding.FragmentAssignmentsBinding
 import com.google.gson.Gson

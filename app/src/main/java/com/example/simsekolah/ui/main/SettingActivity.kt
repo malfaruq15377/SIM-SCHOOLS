@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.simsekolah.data.local.UserPreference
+import com.example.simsekolah.UserPreference
 import com.example.simsekolah.databinding.ActivitySettingBinding
 import com.example.simsekolah.databinding.DialogChangePasswordBinding
 import com.example.simsekolah.ui.auth.LoginActivity
