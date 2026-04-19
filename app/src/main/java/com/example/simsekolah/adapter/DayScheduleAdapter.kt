@@ -31,7 +31,7 @@ class DayScheduleAdapter(private var daySchedules: List<DaySchedule>) :
         
         holder.binding.tvDayName.text = dayData.dayName
         
-        // Setup inner RecyclerView untuk baris jadwal (Time, Subject, Teacher)
+        // Setup inner RecyclerView untuk baris jadwal
         val rowAdapter = ScheduleRowAdapter(dayData.items)
         holder.binding.rvDayItems.layoutManager = LinearLayoutManager(holder.itemView.context)
         holder.binding.rvDayItems.adapter = rowAdapter
@@ -48,7 +48,7 @@ class DayScheduleAdapter(private var daySchedules: List<DaySchedule>) :
     private fun updateExpansionState(holder: ViewHolder, isExpanded: Boolean) {
         holder.binding.layoutExpand.visibility = if (isExpanded) View.VISIBLE else View.GONE
         
-        // Ganti icon berdasarkan status buka/tutup (Minus untuk buka, Plus untuk tutup)
+        // Ganti icon berdasarkan status buka/tutup
         holder.binding.ivExpand.setImageResource(
             if (isExpanded) R.drawable.ic_minus_circle 
             else R.drawable.ic_plus_circle
@@ -63,9 +63,6 @@ class DayScheduleAdapter(private var daySchedules: List<DaySchedule>) :
     }
 }
 
-/**
- * Adapter untuk menampilkan baris isi jadwal di dalam dropdown
- */
 class ScheduleRowAdapter(private val items: List<JadwalItem>) :
     RecyclerView.Adapter<ScheduleRowAdapter.ViewHolder>() {
 
@@ -82,10 +79,10 @@ class ScheduleRowAdapter(private val items: List<JadwalItem>) :
         // Menampilkan Waktu
         holder.binding.tvRowTime.text = "${item.jamMulai} - ${item.jamSelesai}"
         
-        // Menampilkan Nama Mata Pelajaran (Diambil dari objek mapel hasil hit API)
+        // Menampilkan Nama Mata Pelajaran
         holder.binding.tvRowSubject.text = item.mapel?.name ?: item.mapelId
         
-        // Menampilkan Nama Guru (Diambil dari objek guru hasil hit API)
+        // Menampilkan Nama Guru
         holder.binding.tvRowTeacher.text = item.guru?.nama ?: "-"
     }
 

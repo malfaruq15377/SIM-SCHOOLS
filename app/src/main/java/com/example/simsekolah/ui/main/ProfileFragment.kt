@@ -1,6 +1,5 @@
 package com.example.simsekolah.ui.main
 
-import android.R
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -30,20 +29,18 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private val binding get() = _binding!!
     private lateinit var userModel: UserModel
     private lateinit var mUserPreference: UserPreference
-    private val pickImageLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                val savedPath = saveImageToInternalStorage(it)
-                if (savedPath != null) {
-                    saveProfilePath(savedPath)
-                    loadProfileImage()
-                }
+    
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            val savedPath = saveImageToInternalStorage(it)
+            if (savedPath != null) {
+                saveProfilePath(savedPath)
+                loadProfileImage()
             }
         }
+    }
 
-    private val resultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == FormUserActivity.Companion.RESULT_CODE) {
             val dataIntent = result.data
             if (dataIntent != null) {
@@ -63,10 +60,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -82,45 +76,34 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         binding.btnUpdate.setOnClickListener(this)
         binding.ivSetting.setOnClickListener(this)
         binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
-
-        // Klik foto untuk detail (seperti WA)
-        binding.ivProfile.setOnClickListener {
-            showImageDetail()
-        }
-
-        // Klik icon plus untuk ganti foto
-        binding.btnEditPhoto.setOnClickListener {
-            openGallery()
-        }
+        binding.ivProfile.setOnClickListener { showImageDetail() }
+        binding.btnEditPhoto.setOnClickListener { openGallery() }
     }
 
-    private fun showImageDetail() {
-        val dialog = Dialog(requireContext(), R.style.Theme_Black_NoTitleBar_Fullscreen)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(com.example.simsekolah.R.layout.dialog_image_detail)
+    private fun populateView(user: UserModel) {
+        with(binding) {
+            val roleName = if (user.role == "guru") "GURU" else "MURID"
+            
+            // Header Info
+            tvDisplayName.text = user.name ?: "No Name"
+            tvDisplayRole.text = roleName
+            tvDisplayMajor.text = "Class ID: ${user.age}" // Menggunakan age sebagai penampung kelasId
 
-        val imageView = dialog.findViewById<ImageView>(com.example.simsekolah.R.id.iv_detail)
-        val btnClose = dialog.findViewById<ImageButton>(com.example.simsekolah.R.id.btn_close)
+            // Stats Badges
+            tvStatusBadge.text = roleName
+            tvClassBadge.text = user.age.toString()
+            tvMajorBadge.text = user.major ?: "-"
 
-        val savedPath = getProfilePath()
-        if (savedPath != null) {
-            val file = File(savedPath)
-            if (file.exists()) {
-                Glide.with(this)
-                    .load(file)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(imageView)
-            }
-        } else {
-            imageView.setImageResource(com.example.simsekolah.R.drawable.ic_profile)
+            // Personal Info List
+            tvNama.text = user.name ?: "No Name"
+            tvRoleInfo.text = roleName
+            tvClassInfo.text = user.age.toString()
+            tvEmail.text = user.email ?: "No Email"
+            
+            // Other Info
+            // tvPhone.text = user.noPhone ?: "-"
+            // tvAddress.text = user.address ?: "-"
         }
-
-        btnClose.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.show()
     }
 
     private fun loadProfileImage() {
@@ -139,30 +122,31 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun populateView(userModel: UserModel) {
-        with(binding) {
-            tvNama.text = if (userModel.name.isNullOrEmpty()) "No Name" else userModel.name
-            tvEmail.text = if (userModel.email.isNullOrEmpty()) "No Email" else userModel.email
-            tvPhone.text = if (userModel.noPhone.isNullOrEmpty()) "No Phone" else userModel.noPhone
-            tvAddress.text = if (userModel.address.isNullOrEmpty()) "No Address" else userModel.address
-            tvAge.text = if (userModel.age == 0) "0" else userModel.age.toString()
-            tvHeight.text = if (userModel.height == 0.0) "0" else userModel.height.toString()
-            tvWeight.text = if (userModel.weight == 0.0) "0" else userModel.weight.toString()
-            tvMajor.text = if (userModel.major.isNullOrEmpty()) "No Major" else userModel.major
-            tvFather.text = if (userModel.fatherName.isNullOrEmpty()) "No Father" else userModel.fatherName
-            tvMother.text = if (userModel.motherName.isNullOrEmpty()) "No Mother" else userModel.motherName
+    private fun showImageDetail() {
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(com.example.simsekolah.R.layout.dialog_image_detail)
 
-            tvDisplayName.text = tvNama.text
-            tvDisplayMajor.text = tvMajor.text
+        val imageView = dialog.findViewById<ImageView>(com.example.simsekolah.R.id.iv_detail)
+        val btnClose = dialog.findViewById<ImageButton>(com.example.simsekolah.R.id.btn_close)
+
+        val savedPath = getProfilePath()
+        if (savedPath != null) {
+            val file = File(savedPath)
+            if (file.exists()) {
+                Glide.with(this).load(file).into(imageView)
+            }
+        } else {
+            imageView.setImageResource(com.example.simsekolah.R.drawable.ic_profile)
         }
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+        dialog.show()
     }
 
     private fun saveProfilePath(imagePath: String) {
         val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("profile_path", imagePath)
-            apply()
-        }
+        sharedPref.edit().putString("profile_path", imagePath).apply()
     }
 
     private fun getProfilePath(): String? {
@@ -173,15 +157,13 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private fun saveImageToInternalStorage(uri: Uri): String? {
         return try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val fileName = "profile_picture.jpg"
-            val file = File(requireContext().filesDir, fileName)
+            val file = File(requireContext().filesDir, "profile_picture.jpg")
             val outputStream = FileOutputStream(file)
             inputStream?.copyTo(outputStream)
             inputStream?.close()
             outputStream.close()
             file.absolutePath
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }

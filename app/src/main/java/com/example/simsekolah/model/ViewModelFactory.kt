@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.simsekolah.SchoolRepository
 import com.example.simsekolah.di.Injection
-import com.example.simsekolah.model.LoginViewModel
+import com.example.simsekolah.ui.auth.LoginViewModel
 import com.example.simsekolah.ui.main.AttendanceViewModel
 import com.example.simsekolah.ui.main.ScheduleViewModel
 

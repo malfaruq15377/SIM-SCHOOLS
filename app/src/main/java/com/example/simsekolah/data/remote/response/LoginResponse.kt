@@ -28,5 +28,7 @@ data class UserData(
     @SerializedName("kelasId")
     val kelasId: Int?,
     @SerializedName("role")
-    val role: String? = "siswa" // Default ke siswa berdasarkan JSON Anda
+    val role: String? = "siswa",
+    @SerializedName("password")
+    val password: String? = null// Default ke siswa berdasarkan JSON Anda
 )

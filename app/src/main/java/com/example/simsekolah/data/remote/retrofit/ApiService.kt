@@ -8,48 +8,47 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ApiService {
+    @GET("guru")
+    suspend fun getGuru(): GuruResponse
+
     @FormUrlEncoded
-    @POST("siswa/login")
+    @POST("login")
+    suspend fun login(
+        @Field("username") username: String,
+        @Field("password") password: String
+    ): LoginResponse
+    
+    @FormUrlEncoded
+    @POST("login")
     suspend fun loginSiswa(
-        @Field("email") email: String,
+        @Field("username") username: String,
         @Field("password") password: String
     ): LoginResponse
 
     @GET("mapel")
-    suspend fun getMapel(): BaseResponse<List<MapelItem>>
+    suspend fun getMapel(): MapelResponse
 
     @GET("kelas")
-    suspend fun getKelas(): BaseResponse<List<KelasItem>>
+    suspend fun getKelas(): KelasResponse
 
     @GET("jadwal")
-    suspend fun getJadwal(): BaseResponse<List<JadwalItem>>
-
-    @GET("guru")
-    suspend fun getGuru(): GuruResponse
+    suspend fun getJadwal(): JadwalResponse
 
     @GET("siswa")
-    suspend fun getSiswa(): BaseResponse<List<MuridItem>>
+    suspend fun getSiswa(): SiswaResponse
 
     @GET("nilai")
-    suspend fun getNilai(): BaseResponse<List<NilaiItem>>
+    suspend fun getNilai(): Any
 
     @GET("absensi")
-    suspend fun getAbsensi(): BaseResponse<List<AbsensiItem>>
+    suspend fun getAbsensi(): AbsensiResponse
 
     @GET("admin")
-    suspend fun getAdmin(): BaseResponse<List<AdminItem>>
+    suspend fun getAdmin(): Any
 
     @GET("pengumuman")
-    suspend fun getPengumuman(): BaseResponse<List<PengumumanItem>>
+    suspend fun getPengumuman(): Any
 
     @GET("superadmin")
-    suspend fun getSuperAdmin(): BaseResponse<List<SuperAdminItem>>
-
-    @FormUrlEncoded
-    @POST("{role}/update-password/{id}")
-    suspend fun updatePassword(
-        @Path("role") role: String,
-        @Path("id") id: String,
-        @Field("new_password") newPassword: String
-    ): BaseResponse<String>
+    suspend fun getSuperAdmin(): Any
 }

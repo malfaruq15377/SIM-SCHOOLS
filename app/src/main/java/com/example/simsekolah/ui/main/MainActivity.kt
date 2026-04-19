@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 navController.popBackStack(R.id.homeFragment, false)
             }
         }
+
     }
 
     private fun makeStatusBarTransparent() {

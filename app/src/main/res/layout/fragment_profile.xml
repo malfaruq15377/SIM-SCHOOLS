@@ -72,70 +72,68 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="24dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="24dp">
+                <FrameLayout
+                    android:layout_width="110dp"
+                    android:layout_height="110dp">
 
-                    <!-- Bungkus dengan FrameLayout agar bisa menumpuk icon di atas foto -->
-                    <FrameLayout
-                        android:layout_width="110dp"
-                        android:layout_height="110dp">
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/iv_profile"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_profile"
+                        app:shapeAppearanceOverlay="@style/CircleImage"
+                        android:background="@color/white"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="#E9ECEF" />
 
-                        <!-- Foto Profil Lingkaran -->
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/iv_profile"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:layout_gravity="center"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_profile"
-                            app:shapeAppearanceOverlay="@style/CircleImage"
-                            android:background="@color/white"
-                            app:strokeWidth="2dp"
-                            app:strokeColor="#E9ECEF" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_edit_photo"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="5dp"
+                        app:cardBackgroundColor="#000000"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="4dp"
+                        app:strokeColor="@color/white"
+                        app:strokeWidth="2dp">
 
-                        <!-- Tombol Edit/Plus di pojok kanan bawah -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btn_edit_photo"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="bottom|end"
-                            android:layout_marginEnd="5dp"
-                            android:layout_marginBottom="5dp"
-                            app:cardBackgroundColor="#000000"
-                            app:cardCornerRadius="16dp"
-                            app:cardElevation="4dp"
-                            app:strokeColor="@color/white"
-                            app:strokeWidth="2dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="7dp"
-                                android:src="@android:drawable/ic_input_add"
-                                app:tint="@color/white" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </FrameLayout>
-                </LinearLayout>
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="7dp"
+                            android:src="@android:drawable/ic_input_add"
+                            app:tint="@color/white" />
+                    </com.google.android.material.card.MaterialCardView>
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tv_display_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Muhammad Alfaruq"
+                    android:text="Name"
                     android:textColor="#1A1C1E"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tv_display_role"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROLE"
+                    android:textColor="#4F46E5"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
                     android:id="@+id/tv_display_major"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Class : PPM | Roll no : 20"
+                    android:text="Class ID: -"
                     android:textColor="#6C757D"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -165,14 +163,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Age"
+                            android:text="Status"
                             android:textSize="12sp"
                             android:textColor="#6C757D"/>
                         <TextView
-                            android:id="@+id/tv_age"
+                            android:id="@+id/tv_status_badge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="19 Yrs"
+                            android:text="-"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="#1A1C1E"/>
@@ -190,8 +188,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Height" android:textSize="12sp" android:textColor="#6C757D"/>
-                        <TextView android:id="@+id/tv_height" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="170 cm" android:textStyle="bold" android:textSize="16sp" android:textColor="#1A1C1E"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kelas" android:textSize="12sp" android:textColor="#6C757D"/>
+                        <TextView android:id="@+id/tv_class_badge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textStyle="bold" android:textSize="16sp" android:textColor="#1A1C1E"/>
                     </LinearLayout>
 
                     <View android:layout_width="1dp" android:layout_height="24dp" android:background="#E9ECEF" android:layout_gravity="center"/>
@@ -202,8 +200,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Weight" android:textSize="12sp" android:textColor="#6C757D"/>
-                        <TextView android:id="@+id/tv_weight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="57 kg" android:textStyle="bold" android:textSize="16sp" android:textColor="#1A1C1E"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Major" android:textSize="12sp" android:textColor="#6C757D"/>
+                        <TextView android:id="@+id/tv_major_badge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textStyle="bold" android:textSize="16sp" android:textColor="#1A1C1E"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -238,18 +236,31 @@
                         android:padding="12dp"
                         android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_nama" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Muhammad Alfaruq" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
+                        <TextView android:id="@+id/tv_nama" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
 
+                    <!-- STATUS USER -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Major / Class" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_major" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PPM" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="User Status" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        <TextView android:id="@+id/tv_role_info" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Role" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
+
+                    <!-- KELAS ID -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Class ID" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        <TextView android:id="@+id/tv_class_info" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
@@ -260,94 +271,9 @@
                         android:padding="12dp"
                         android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_email" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ruqqq@gmail.com" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
+                        <TextView android:id="@+id/tv_email" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="email@mail.com" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone Number" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_phone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0812 3456 7890" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Address" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_address" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tasikmalaya, Jawa Barat" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- FAMILY INFO -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Family Background"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="#1A1C1E"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp"/>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#E9ECEF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:orientation="vertical">
-                        <!-- PERBAIKAN DI SINI -->
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Father's Name"
-                            android:textSize="11sp"
-                            android:textColor="#6C757D"
-                            android:textAllCaps="true"
-                            android:letterSpacing="0.05"/>
-                        <TextView
-                            android:id="@+id/tv_father"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Man of Man"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="#1A1C1E"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mother's Name" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
-                        <TextView android:id="@+id/tv_mother" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Girl of Girl" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
-                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

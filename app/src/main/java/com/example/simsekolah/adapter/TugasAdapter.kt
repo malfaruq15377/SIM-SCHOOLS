@@ -1,20 +1,23 @@
 package com.example.simsekolah.adapter
 
-import android.content.Context
-import android.content.Intent
+import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.ItemTugasBinding
 import com.example.simsekolah.ui.main.SubmitTugasActivity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import android.content.Intent
 
-class TugasAdapter(private val listTugas: List<TugasModel>) :
-    RecyclerView.Adapter<TugasAdapter.TugasViewHolder>() {
-    
+class TugasAdapter(
+    private var listTugas: List<TugasModel>,
+    private val isGuru: Boolean = false,
+    private val onTugasClicked: (TugasModel) -> Unit = {},
+    private val onDeleteClicked: (TugasModel) -> Unit = {}
+) : RecyclerView.Adapter<TugasAdapter.TugasViewHolder>() {
+
     inner class TugasViewHolder(val binding: ItemTugasBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -24,40 +27,49 @@ class TugasAdapter(private val listTugas: List<TugasModel>) :
     }
 
     override fun onBindViewHolder(holder: TugasViewHolder, position: Int) {
-        val data = listTugas[position]
+        val displayList = if (!isGuru) listTugas.filter { !it.isDone } else listTugas
+        
+        if (position >= displayList.size) return
+        val data = displayList[position]
+
         holder.binding.apply {
-            tvDeadline.text = data.deadline
+            tvDeadline.text = "Deadline: ${data.deadline}"
             tvTime.text = data.time
             tvTitle.text = data.title
             tvDeskripsi.text = data.description
-            
-            root.setOnClickListener {
-                // Tandai sebagai SELESAI di memori lokal
-                markAsDone(it.context, data.id)
-                
-                Toast.makeText(it.context, "Tugas '${data.title}' Selesai Dikerjakan!", Toast.LENGTH_SHORT).show()
 
-                val intent = Intent(it.context, SubmitTugasActivity::class.java)
-                intent.putExtra("EXTRA_TUGAS", data)
-                it.context.startActivity(intent)
+            // Tampilan & Fitur khusus Guru
+            if (isGuru) {
+                btnDelete.visibility = View.VISIBLE
+                btnDelete.setOnClickListener {
+                    onDeleteClicked(data)
+                }
+                
+                root.setCardBackgroundColor(Color.WHITE)
+                tvTitle.setTextColor(Color.parseColor("#4F46E5"))
+            } else {
+                btnDelete.visibility = View.GONE
+            }
+
+            // ACTION KLIK
+            root.setOnClickListener {
+                if (isGuru) {
+                    onTugasClicked(data)
+                } else {
+                    val intent = Intent(it.context, SubmitTugasActivity::class.java)
+                    intent.putExtra("EXTRA_TUGAS", data)
+                    it.context.startActivity(intent)
+                }
             }
         }
     }
 
-    private fun markAsDone(context: Context, tugasId: String) {
-        val sharedPref = context.getSharedPreferences("TugasPrefs", Context.MODE_PRIVATE)
-        val json = sharedPref.getString("list_tugas", null)
-        if (json != null) {
-            val gson = Gson()
-            val type = object : TypeToken<MutableList<TugasModel>>() {}.type
-            val list: MutableList<TugasModel> = gson.fromJson(json, type)
-            
-            // Cari tugas berdasarkan ID dan ubah statusnya
-            list.find { it.id == tugasId }?.isDone = true
-            
-            sharedPref.edit().putString("list_tugas", gson.toJson(list)).apply()
-        }
+    fun updateData(newList: List<TugasModel>) {
+        listTugas = newList
+        notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int = listTugas.size
+    override fun getItemCount(): Int {
+        return if (!isGuru) listTugas.count { !it.isDone } else listTugas.size
+    }
 }

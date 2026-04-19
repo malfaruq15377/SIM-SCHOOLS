@@ -9,13 +9,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.simsekolah.R
 import com.example.simsekolah.UserPreference
 import com.example.simsekolah.databinding.ActivityLoginBinding
-import com.example.simsekolah.model.LoginViewModel
 import com.example.simsekolah.model.ViewModelFactory
 import com.example.simsekolah.ui.main.MainActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var userPreference: UserPreference
+    
+    // Pastikan import LoginViewModel mengarah ke ui.auth
     private val viewModel: LoginViewModel by viewModels {
         ViewModelFactory.getInstance(this)
     }
@@ -52,7 +53,8 @@ class LoginActivity : AppCompatActivity() {
             val selectedRoleId = binding.rgRole.checkedRadioButtonId
             val role = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
 
-            viewModel.login(usernameInput, passwordInput, role)
+            // Panggil fungsi login dengan parameter yang sesuai
+            viewModel.login(usernameInput, passwordInput, role, this)
         }
     }
 

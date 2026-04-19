@@ -1,5 +1,6 @@
 package com.example.simsekolah.ui.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -81,8 +82,11 @@ class SettingActivity : AppCompatActivity() {
         lifecycleScope.launch {
             Toast.makeText(this@SettingActivity, "Updating password...", Toast.LENGTH_SHORT).show()
             
-            // Simulasi proses API
-            delay(2000) 
+            delay(1500) 
+
+            // SIMPAN KE PREFERENCES AGAR PERMANEN UNTUK TESTING LOGIN
+            val sharedPref = getSharedPreferences("TempPassword", Context.MODE_PRIVATE)
+            sharedPref.edit().putString("custom_password", password).apply()
 
             Toast.makeText(this@SettingActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()
             dialog.dismiss()

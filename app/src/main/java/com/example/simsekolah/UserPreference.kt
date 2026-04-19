@@ -19,6 +19,7 @@ class UserPreference(context: Context) {
         private const val HEIGHT = "height"
         private const val DATE_OF_BIRTH = "date_of_birth"
         private const val ROLE = "role"
+        private const val TOKEN = "token"
     }
 
     private val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -37,6 +38,7 @@ class UserPreference(context: Context) {
             putFloat(HEIGHT, value.height.toFloat())
             putString(DATE_OF_BIRTH, value.dateOfBirth)
             putString(ROLE, value.role)
+            putString(TOKEN, value.token)
         }
     }
 
@@ -53,7 +55,8 @@ class UserPreference(context: Context) {
             weight = preferences.getFloat(WEIGHT, 0f).toDouble(),
             height = preferences.getFloat(HEIGHT, 0f).toDouble(),
             dateOfBirth = preferences.getString(DATE_OF_BIRTH, ""),
-            role = preferences.getString(ROLE, "")
+            role = preferences.getString(ROLE, ""),
+            token = preferences.getString(TOKEN, "")
         )
     }
 

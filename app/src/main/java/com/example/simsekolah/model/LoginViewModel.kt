@@ -20,7 +20,7 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
         val password = passwordInput.trim()
 
         if (username.isEmpty()) {
-            _loginResult.value = Result.failure(Exception("Email tidak boleh kosong"))
+            _loginResult.value = Result.failure(Exception("Username tidak boleh kosong"))
             return
         }
         if (password.isEmpty()) {
@@ -31,23 +31,26 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                if (role.equals("siswa", ignoreCase = true)) {
-                    repository.loginSiswa(username, password).collect { response ->
-                        if (response.data.token.isNotEmpty()) {
-                            _loginResult.value = Result.success(
-                                UserModel(
-                                    name = response.data.user.name,
-                                    email = response.data.user.email,
-                                    role = "siswa"
-                                )
+                // Menggunakan repository.loginSiswa yang sekarang mengembalikan LoginResponse
+                repository.loginSiswa(username, password).collect { response ->
+                    val loginData = response.data
+                    if (loginData.token.isNotEmpty()) {
+                        val userData = loginData.user
+                        
+                        // Validasi role jika diperlukan, atau langsung gunakan role dari API
+                        val userRole = userData.role ?: role
+                        
+                        _loginResult.value = Result.success(
+                            UserModel(
+                                name = userData.name,
+                                email = userData.email,
+                                role = userRole,
+                                token = loginData.token
                             )
-                        } else {
-                            _loginResult.value = Result.failure(Exception("Login gagal: Token kosong"))
-                        }
+                        )
+                    } else {
+                        _loginResult.value = Result.failure(Exception("Login gagal: Token tidak ditemukan"))
                     }
-                } else {
-                    // Implementasi login guru jika ada endpointnya, sementara pakai logic lama atau sesuaikan
-                    _loginResult.value = Result.failure(Exception("Login untuk role $role belum diimplementasikan dengan API"))
                 }
             } catch (e: Exception) {
                 _loginResult.value = Result.failure(Exception("Login gagal: ${e.message}"))

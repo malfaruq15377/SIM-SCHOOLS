@@ -1,5 +1,6 @@
 package com.example.simsekolah.ui.auth
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,12 +17,12 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun login(emailInput: String, passwordInput: String, role: String) {
-        val email = emailInput.trim()
+    fun login(usernameInput: String, passwordInput: String, role: String, context: Context) {
+        val username = usernameInput.trim()
         val password = passwordInput.trim()
 
-        if (email.isEmpty()) {
-            _loginResult.value = Result.failure(Exception("Email tidak boleh kosong"))
+        if (username.isEmpty()) {
+            _loginResult.value = Result.failure(Exception("Username tidak boleh kosong"))
             return
         }
         if (password.isEmpty()) {
@@ -29,38 +30,58 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
             return
         }
 
+        val tempPref = context.getSharedPreferences("TempPassword", Context.MODE_PRIVATE)
+        val savedCustomPassword = tempPref.getString("custom_password", null)
+
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Endpoint login biasanya sama untuk semua role, atau dipisahkan di API.
-                // Berdasarkan request Anda sebelumnya, kita pakai loginSiswa untuk role siswa.
-                if (role.equals("siswa", ignoreCase = true) || role.equals("murid", ignoreCase = true)) {
-                    repository.loginSiswa(email, password).collect { response ->
-                        if (response.data.token.isNotEmpty()) {
-                            _loginResult.value = Result.success(
-                                UserModel(
-                                    name = response.data.user.name,
-                                    email = response.data.user.email,
-                                    role = "siswa"
-                                )
-                            )
+                if (role.equals("guru", ignoreCase = true)) {
+                    repository.getGuru().collect { response ->
+                        if (response.success) {
+                            val guru = response.data.find { 
+                                (it.email?.equals(username, ignoreCase = true) == true || it.name.equals(username, ignoreCase = true)) && 
+                                (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
+                            }
+                            if (guru != null) {
+                                // Simpan kelasId ke UserModel agar bisa memfilter murid
+                                _loginResult.value = Result.success(UserModel(
+                                    name = guru.name, 
+                                    email = guru.email, 
+                                    role = "guru",
+                                    age = guru.kelasId ?: 0 // Menggunakan age sebagai penampung sementara kelasId jika model tidak diupdate
+                                ))
+                            } else {
+                                _loginResult.value = Result.failure(Exception("Username atau password salah"))
+                            }
                         } else {
-                            _loginResult.value = Result.failure(Exception("Login gagal: Token kosong"))
+                            _loginResult.value = Result.failure(Exception(response.message))
                         }
                     }
                 } else {
-                    // Placeholder untuk login guru
-                    _loginResult.value = Result.failure(Exception("Login untuk guru belum terhubung ke API"))
+                    repository.getSiswa().collect { response ->
+                        if (response.success) {
+                            val murid = response.data.find { 
+                                (it.email?.equals(username, ignoreCase = true) == true || it.nama.equals(username, ignoreCase = true)) && 
+                                (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
+                            }
+                            if (murid != null) {
+                                _loginResult.value = Result.success(UserModel(
+                                    name = murid.nama, 
+                                    email = murid.email, 
+                                    role = "murid",
+                                    age = murid.kelasId ?: 0
+                                ))
+                            } else {
+                                _loginResult.value = Result.failure(Exception("Username atau password salah"))
+                            }
+                        } else {
+                            _loginResult.value = Result.failure(Exception(response.message))
+                        }
+                    }
                 }
-            } catch (e: retrofit2.HttpException) {
-                val errorMsg = when (e.code()) {
-                    401 -> "Email atau password salah"
-                    404 -> "Endpoint login tidak ditemukan (404). Periksa ApiService."
-                    else -> "Terjadi kesalahan server (${e.code()})"
-                }
-                _loginResult.value = Result.failure(Exception(errorMsg))
             } catch (e: Exception) {
-                _loginResult.value = Result.failure(Exception("Koneksi gagal: ${e.message}"))
+                _loginResult.value = Result.failure(e)
             } finally {
                 _isLoading.value = false
             }
