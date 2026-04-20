@@ -45,6 +45,7 @@ class SubmitTugasActivity : AppCompatActivity() {
             intent.getParcelableExtra<TugasModel>("EXTRA_TUGAS")
         }
 
+
         tugasData?.let { tugas ->
             binding.tvSubmitTitle.text = tugas.title
             binding.tvSubmitDeadline.text = "Deadline: ${tugas.deadline} - ${tugas.time}"

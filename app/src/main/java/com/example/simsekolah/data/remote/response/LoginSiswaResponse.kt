@@ -3,136 +3,119 @@ package com.example.simsekolah.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class LoginSiswaResponse(
+    @SerializedName("success")
+    val success: Boolean,
 
-	@field:SerializedName("data")
-	val data: List<DataItem>,
+    @SerializedName("message")
+    val message: String,
 
-	@field:SerializedName("success")
-	val success: Boolean,
-
-	@field:SerializedName("message")
-	val message: String
-)
-
-data class AbsensisItem(
-
-	@field:SerializedName("createdAt")
-	val createdAt: String,
-
-	@field:SerializedName("siswaId")
-	val siswaId: Int,
-
-	@field:SerializedName("jadwalId")
-	val jadwalId: String,
-
-	@field:SerializedName("id")
-	val id: String,
-
-	@field:SerializedName("uuid")
-	val uuid: String,
-
-	@field:SerializedName("status")
-	val status: String,
-
-	@field:SerializedName("updatedAt")
-	val updatedAt: String
-)
-
-data class Kelas(
-
-	@field:SerializedName("waliKelasId")
-	val waliKelasId: Int,
-
-	@field:SerializedName("createdAt")
-	val createdAt: String,
-
-	@field:SerializedName("name")
-	val name: String,
-
-	@field:SerializedName("id")
-	val id: Int,
-
-	@field:SerializedName("uuid")
-	val uuid: String,
-
-	@field:SerializedName("updatedAt")
-	val updatedAt: String
-)
-data class LoginResult(
-	@field:SerializedName("userId")
-	val userId: String,
-
-	@field:SerializedName("name")
-	val name: String,
-
-	@field:SerializedName("token")
-	val token: String,
-
-	@field:SerializedName("role")
-	val role: String // Pastikan isinya "murid" atau sesuai API
-)
-data class NilaisItem(
-
-	@field:SerializedName("createdAt")
-	val createdAt: String,
-
-	@field:SerializedName("guruId")
-	val guruId: Int,
-
-	@field:SerializedName("nilai")
-	val nilai: Int,
-
-	@field:SerializedName("siswaId")
-	val siswaId: Int,
-
-	@field:SerializedName("mapelId")
-	val mapelId: Int,
-
-	@field:SerializedName("id")
-	val id: String,
-
-	@field:SerializedName("uuid")
-	val uuid: String,
-
-	@field:SerializedName("updatedAt")
-	val updatedAt: String
+    @SerializedName("data")
+    val data: List<DataItem>
 )
 
 data class DataItem(
+    @SerializedName("id")
+    val id: Int,
 
-	@field:SerializedName("createdAt")
-	val createdAt: String,
+    @SerializedName("uuid")
+    val uuid: String,
 
-	@field:SerializedName("password")
-	val password: String,
+    @SerializedName("name")
+    val name: String,
 
-	@field:SerializedName("nilais")
-	val nilais: List<NilaisItem>,
+    @SerializedName("email")
+    val email: String,
 
-	@field:SerializedName("kelas")
-	val kelas: Kelas,
+    @SerializedName("password")
+    val password: String?,
 
-	@field:SerializedName("absensis")
-	val absensis: List<AbsensisItem>,
+    @SerializedName("kelasId")
+    val kelasId: Int?,
 
-	@field:SerializedName("name")
-	val name: String,
+    @SerializedName("isActive")
+    val isActive: Boolean,
 
-	@field:SerializedName("id")
-	val id: Int,
+    @SerializedName("createdAt")
+    val createdAt: String,
 
-	@field:SerializedName("kelasId")
-	val kelasId: Int,
+    @SerializedName("updatedAt")
+    val updatedAt: String,
 
-	@field:SerializedName("isActive")
-	val isActive: Boolean,
+    @SerializedName("kelas")
+    val kelas: Kelas?,
 
-	@field:SerializedName("uuid")
-	val uuid: String,
+    @SerializedName("nilais")
+    val nilais: List<NilaisItem>?,
 
-	@field:SerializedName("email")
-	val email: String,
+    @SerializedName("absensis")
+    val absensis: List<AbsensisItem>?
+)
 
-	@field:SerializedName("updatedAt")
-	val updatedAt: String
+data class Kelas(
+    @SerializedName("id")
+    val id: Int,
+
+    @SerializedName("uuid")
+    val uuid: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("waliKelasId")
+    val waliKelasId: Int?,
+
+    @SerializedName("createdAt")
+    val createdAt: String,
+
+    @SerializedName("updatedAt")
+    val updatedAt: String
+)
+
+data class NilaisItem(
+    @SerializedName("id")
+    val id: Int,
+
+    @SerializedName("uuid")
+    val uuid: String,
+
+    @SerializedName("nilai")
+    val nilai: Int,
+
+    @SerializedName("siswaId")
+    val siswaId: Int,
+
+    @SerializedName("guruId")
+    val guruId: Int,
+
+    @SerializedName("mapelId")
+    val mapelId: Int,
+
+    @SerializedName("createdAt")
+    val createdAt: String,
+
+    @SerializedName("updatedAt")
+    val updatedAt: String
+)
+
+data class AbsensisItem(
+    @SerializedName("id")
+    val id: Int,
+
+    @SerializedName("uuid")
+    val uuid: String,
+
+    @SerializedName("status")
+    val status: String,
+
+    @SerializedName("siswaId")
+    val siswaId: Int,
+
+    @SerializedName("jadwalId")
+    val jadwalId: Int?,
+
+    @SerializedName("createdAt")
+    val createdAt: String,
+
+    @SerializedName("updatedAt")
+    val updatedAt: String
 )
