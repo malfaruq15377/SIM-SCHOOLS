@@ -44,6 +44,11 @@
     </style>
 
     <style name="Theme.SIMSekolah" parent="Base.Theme.SIMSekolah" />
+    <style name="EmptyIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+        <item name="android:height">0dp</item>
+        <item name="android:width">0dp</item>
+    </style>
 
     <!-- <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>
