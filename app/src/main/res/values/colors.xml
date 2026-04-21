@@ -50,6 +50,7 @@
     <color name="md_theme_dark_surfaceVariant">#43474E</color>
     <color name="md_theme_dark_onSurfaceVariant">#C3C7CF</color>
     <color name="md_theme_dark_outline">#8D9199</color>
+    <color name="teal_700">#FF018786</color>
 
     <!-- UI Helpers -->
     <color name="blue_gradient_start">#0061A4</color>
