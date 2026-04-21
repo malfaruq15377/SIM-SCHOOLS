@@ -21,7 +21,17 @@
         android:id="@+id/attendanceFragment"
         android:name="com.example.simsekolah.ui.attendance.AttendanceFragment"
         android:label="@string/attendance"
-        tools:layout="@layout/fragment_attendance" />
+        tools:layout="@layout/fragment_attendance">
+        <action
+            android:id="@+id/action_attendanceFragment_to_takeAttendanceFragment"
+            app:destination="@id/takeAttendanceFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/takeAttendanceFragment"
+        android:name="com.example.simsekolah.ui.attendance.TakeAttendanceFragment"
+        android:label="Take Attendance"
+        tools:layout="@layout/fragment_teacher_take_attendance" />
         
     <fragment
         android:id="@+id/profileFragment"
@@ -29,7 +39,6 @@
         android:label="@string/profile"
         tools:layout="@layout/fragment_profile" />
 
-    <!-- Activity tetap dideklarasikan di graph jika ingin navigasi antar activity via NavController -->
     <activity
         android:id="@+id/loginActivity"
         android:name="com.example.simsekolah.ui.auth.LoginActivity"
@@ -41,16 +50,19 @@
         android:name="com.example.simsekolah.ui.auth.RegisterActivity"
         android:label="activity_register"
         tools:layout="@layout/activity_register" />
+        
     <fragment
         android:id="@+id/assignmentsFragment"
         android:name="com.example.simsekolah.ui.assignment.AssignmentsFragment"
         android:label="fragment_assignments"
         tools:layout="@layout/fragment_assignments" />
+        
     <fragment
         android:id="@+id/eventFragment"
         android:name="com.example.simsekolah.ui.event.EventFragment"
         android:label="fragment_event"
         tools:layout="@layout/fragment_event" />
+        
     <fragment
         android:id="@+id/feesFragment"
         android:name="com.example.simsekolah.ui.fees.FeesFragment"
