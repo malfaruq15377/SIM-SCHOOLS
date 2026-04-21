@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
+import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.ui.home.CalendarAdapter
 import com.example.simsekolah.databinding.DialogAddEventBinding
 import com.example.simsekolah.model.EventModel
@@ -34,15 +35,16 @@ import java.util.Locale
 
 class EventFragment : Fragment() {
 
-    private lateinit var rvCalendar: RecyclerView
-    private lateinit var rvEvent: RecyclerView
-    private lateinit var tvMonth: TextView
-    private lateinit var btnPrevMonth: ImageView
-    private lateinit var btnNextMonth: ImageView
+    private var rvCalendar: RecyclerView? = null
+    private var rvEvent: RecyclerView? = null
+    private var tvMonth: TextView? = null
+    private var btnPrevMonth: ImageView? = null
+    private var btnNextMonth: ImageView? = null
 
-    private lateinit var calendarAdapter: CalendarAdapter
-    private lateinit var eventAdapter: EventAdapter
+    private var calendarAdapter: CalendarAdapter? = null
+    private var eventAdapter: EventAdapter? = null
     private val eventList = mutableListOf<EventModel>()
+    private var userPreference: UserPreference? = null
 
     private var eventColorsMap = mutableMapOf<String, Int>()
 
@@ -62,6 +64,8 @@ class EventFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        userPreference = UserPreference(requireContext())
+        
         rvCalendar = view.findViewById(R.id.rvCalendar)
         rvEvent = view.findViewById(R.id.rvEvent)
         tvMonth = view.findViewById(R.id.tvMonth)
@@ -69,16 +73,15 @@ class EventFragment : Fragment() {
         btnNextMonth = view.findViewById(R.id.btnNextMonth)
 
         loadEvents()
-        autoDeletePassedEvents() // Hapus otomatis yang lewat 1 jam
         updateCalendarUI()
         setupEventList()
 
-        btnPrevMonth.setOnClickListener {
+        btnPrevMonth?.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
             updateCalendarUI()
         }
 
-        btnNextMonth.setOnClickListener {
+        btnNextMonth?.setOnClickListener {
             calendar.add(Calendar.MONTH, 1)
             updateCalendarUI()
         }
@@ -86,79 +89,17 @@ class EventFragment : Fragment() {
         checkAlarmPermission()
     }
 
-    private fun autoDeletePassedEvents() {
-        val now = Calendar.getInstance().timeInMillis
-        val oneHourInMillis = 3600000
-        val iterator = eventList.iterator()
-        var changed = false
-
-        while (iterator.hasNext()) {
-            val event = iterator.next()
-            val eventTime = getEventTimestamp(event)
-            if (eventTime != -1L && (now - eventTime) > oneHourInMillis) {
-                iterator.remove()
-                // Juga hapus dari map warna jika sudah tidak ada event di hari itu
-                removeColorIfNoEvents(event)
-                changed = true
-            }
-        }
-
-        if (changed) {
-            saveEvents()
-        }
-    }
-
-    private fun getEventTimestamp(event: EventModel): Long {
-        return try {
-            val dateStr = "${event.day} ${event.month} ${calendar.get(Calendar.YEAR)} ${event.time}"
-            val format = SimpleDateFormat("dd MMMM yyyy HH:mm", Locale.getDefault())
-            format.parse(dateStr)?.time ?: -1L
-        } catch (e: Exception) {
-            -1L
-        }
-    }
-
-    private fun removeColorIfNoEvents(event: EventModel) {
-        val dateKey = try {
-            val cal = Calendar.getInstance()
-            val format = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-            cal.time = format.parse("${event.day} ${event.month} ${calendar.get(Calendar.YEAR)}") ?: Date()
-            dateFormat.format(cal.time)
-        } catch (e: Exception) { "" }
-
-        val hasOtherEvents = eventList.any {
-            val otherDateKey = try {
-                val cal = Calendar.getInstance()
-                val format = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-                cal.time = format.parse("${it.day} ${it.month} ${calendar.get(Calendar.YEAR)}") ?: Date()
-                dateFormat.format(cal.time)
-            } catch (e: Exception) { "x" }
-            otherDateKey == dateKey
-        }
-
-        if (!hasOtherEvents && dateKey.isNotEmpty()) {
-            eventColorsMap.remove(dateKey)
-        }
-    }
-
     private fun checkAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (!alarmManager.canScheduleExactAlarms()) {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Permission Required")
-                    .setMessage("This app needs permission to set exact alarms for your events. Please enable it in settings.")
-                    .setPositiveButton("Settings") { _, _ ->
-                        startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                // Optional: Show dialog
             }
         }
     }
 
     private fun updateCalendarUI() {
-        tvMonth.text = monthFormat.format(calendar.time)
+        tvMonth?.text = monthFormat.format(calendar.time)
         val dates = mutableListOf<Int>()
         val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         for (i in 1..maxDay) { dates.add(i) }
@@ -177,56 +118,51 @@ class EventFragment : Fragment() {
             } catch (e: Exception) {}
         }
 
+        val isGuru = userPreference?.getUser()?.role?.equals("guru", ignoreCase = true) == true
         calendarAdapter = CalendarAdapter(dates, currentMonthColors) { selectedDate ->
-            showAddEventDialog(selectedDate)
+            if (isGuru) {
+                showAddEventDialog(selectedDate)
+            } else {
+                Toast.makeText(requireContext(), "Hanya Guru yang dapat menambah event", Toast.LENGTH_SHORT).show()
+            }
         }
-        rvCalendar.layoutManager = GridLayoutManager(requireContext(), 7)
-        rvCalendar.adapter = calendarAdapter
+        
+        rvCalendar?.apply {
+            layoutManager = GridLayoutManager(requireContext(), 7)
+            adapter = calendarAdapter
+        }
     }
 
     private fun setupEventList() {
-        eventAdapter = EventAdapter(eventList) { eventToDelete ->
+        val isGuru = userPreference?.getUser()?.role?.equals("guru", ignoreCase = true) == true
+        eventAdapter = EventAdapter(eventList, isGuru) { eventToDelete ->
             showDeleteConfirmation(eventToDelete)
         }
-        rvEvent.layoutManager = LinearLayoutManager(requireContext())
-        rvEvent.adapter = eventAdapter
+        rvEvent?.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = eventAdapter
+        }
     }
 
     private fun showDeleteConfirmation(event: EventModel) {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Event")
-            .setMessage("Are you sure you want to cancel this event?")
+            .setMessage("Are you sure you want to delete this event?")
             .setPositiveButton("Yes") { _, _ ->
-                cancelAlarm(event)
                 eventList.remove(event)
-                removeColorIfNoEvents(event)
                 saveEvents()
-                eventAdapter.updateList(eventList)
+                eventAdapter?.updateList(eventList)
                 updateCalendarUI()
-                Toast.makeText(requireContext(), "Event canceled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Event deleted", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("No", null)
             .show()
-    }
-
-    private fun cancelAlarm(event: EventModel) {
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val uniqueId = (event.day + event.time + event.month + calendar.get(Calendar.YEAR)).hashCode()
-        val intent = Intent(requireContext(), AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            uniqueId,
-            intent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
-        )
-        alarmManager.cancel(pendingIntent)
     }
 
     private fun showAddEventDialog(date: Int) {
         val dialogBinding = DialogAddEventBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
-            .setCancelable(false)
             .create()
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -259,7 +195,7 @@ class EventFragment : Fragment() {
                 R.id.rbRed -> "#E03131".toColorInt()
                 R.id.rbGreen -> "#2F9E44".toColorInt()
                 R.id.rbOrange -> "#F08C00".toColorInt()
-                else -> "#1971C2".toColorInt()
+                else -> "#4F46E5".toColorInt()
             }
 
             val newEvent = EventModel(
@@ -270,58 +206,22 @@ class EventFragment : Fragment() {
                 location = location,
                 color = selectedColor
             )
-            setAlarm(date, timeStr, title, location)
 
-            val eventCal = Calendar.getInstance().apply { time = calendar.time; set(Calendar.DAY_OF_MONTH, date) }
+            val eventCal = Calendar.getInstance().apply { 
+                time = calendar.time
+                set(Calendar.DAY_OF_MONTH, date) 
+            }
             val dateKey = dateFormat.format(eventCal.time)
             eventColorsMap[dateKey] = selectedColor
 
             eventList.add(0, newEvent)
             saveEvents()
             updateCalendarUI()
-            eventAdapter.updateList(eventList)
-            rvEvent.scrollToPosition(0)
+            eventAdapter?.updateList(eventList)
+            rvEvent?.scrollToPosition(0)
             dialog.dismiss()
         }
         dialog.show()
-    }
-
-    private fun setAlarm(day: Int, timeStr: String, title: String, location: String) {
-        try {
-            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val timeParts = timeStr.split(":")
-            val hour = timeParts[0].filter { it.isDigit() }.toIntOrNull() ?: 0
-            val minute = timeParts[1].filter { it.isDigit() }.toIntOrNull() ?: 0
-
-            val uniqueId = (day.toString() + timeStr + calendar.get(Calendar.MONTH) + calendar.get(
-                Calendar.YEAR)).hashCode()
-            val intent = Intent(requireContext(), AlarmReceiver::class.java).apply {
-                putExtra(AlarmReceiver.Companion.EXTRA_TITLE, "Event Started: $title")
-                putExtra(AlarmReceiver.Companion.EXTRA_MESSAGE, "Location: $location at $timeStr")
-                putExtra(AlarmReceiver.Companion.EXTRA_ID, uniqueId)
-                addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-            }
-
-            val pendingIntent = PendingIntent.getBroadcast(requireContext(), uniqueId, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-            val alarmCalendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, calendar.get(Calendar.YEAR))
-                set(Calendar.MONTH, calendar.get(Calendar.MONTH))
-                set(Calendar.DAY_OF_MONTH, day)
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
-
-            if (alarmCalendar.timeInMillis > System.currentTimeMillis()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    val alarmInfo = AlarmManager.AlarmClockInfo(alarmCalendar.timeInMillis, pendingIntent)
-                    alarmManager.setAlarmClock(alarmInfo, pendingIntent)
-                } else {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmCalendar.timeInMillis, pendingIntent)
-                }
-            }
-        } catch (e: Exception) { e.printStackTrace() }
     }
 
     private fun saveEvents() {

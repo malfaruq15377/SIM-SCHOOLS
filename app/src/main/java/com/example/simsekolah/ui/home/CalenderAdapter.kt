@@ -37,11 +37,13 @@ class CalendarAdapter(
 
         // Reset state ke default
         holder.tvDate.background = null
-        holder.tvDate.setBackgroundResource(R.drawable.bg_date)
-        holder.tvDate.setTextColor(Color.parseColor("#1A1C1E"))
+        holder.tvDate.setTextColor(Color.parseColor("#495057"))
 
         if (position == selectedPosition) {
-            holder.tvDate.setBackgroundResource(R.drawable.bg_selected)
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.OVAL
+            shape.setColor(Color.parseColor("#4F46E5"))
+            holder.tvDate.background = shape
             holder.tvDate.setTextColor(Color.WHITE)
         } else if (eventColor != null) {
             val shape = GradientDrawable()

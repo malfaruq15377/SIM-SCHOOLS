@@ -12,6 +12,7 @@ import com.example.simsekolah.model.EventModel
 
 class EventAdapter(
     private var eventList: List<EventModel>,
+    private val isGuru: Boolean = false,
     private val onDeleteClick: (EventModel) -> Unit
 ) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
@@ -43,6 +44,8 @@ class EventAdapter(
             holder.viewIndicator.backgroundTintList = ColorStateList.valueOf(event.color)
         }
 
+        // Only Guru can see and use delete button
+        holder.btnDelete.visibility = if (isGuru) View.VISIBLE else View.GONE
         holder.btnDelete.setOnClickListener {
             onDeleteClick(event)
         }

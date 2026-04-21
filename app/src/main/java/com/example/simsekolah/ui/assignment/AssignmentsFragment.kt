@@ -13,8 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.simsekolah.ui.assignment.SubmissionAdapter
-import com.example.simsekolah.ui.assignment.TugasAdapter
 import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.data.local.room.SekolahDatabase
 import com.example.simsekolah.data.remote.retrofit.ApiConfig
@@ -36,8 +34,8 @@ class AssignmentsFragment : Fragment() {
 
     private lateinit var taskAdapter: TugasAdapter
     private var submissionAdapter: SubmissionAdapter? = null
-    private val fullTugasList = mutableListOf<TugasModel>() // List asli dari Prefs
-    private val displayTugasList = mutableListOf<TugasModel>() // List yang sudah difilter
+    private val fullTugasList = mutableListOf<TugasModel>() 
+    private val displayTugasList = mutableListOf<TugasModel>()
     private val gson = Gson()
 
     private var selectedFileUri: Uri? = null
@@ -70,20 +68,54 @@ class AssignmentsFragment : Fragment() {
         val user = userPref.getUser()
 
         loadAndFilterTugasData()
-        setupRecyclerViews(user.role == "guru")
+        fetchTugasFromApi() // Ambil data dari API juga
+        setupRecyclerViews(user.role?.equals("guru", ignoreCase = true) == true)
 
-        if (user.role == "guru") {
+        if (user.role?.equals("guru", ignoreCase = true) == true) {
             binding.btnAdd.visibility = View.VISIBLE
             binding.layoutSubmissions.visibility = View.VISIBLE
             binding.btnAdd.setOnClickListener {
-                showAddTugasDialog(user.age) // user.age = kelasId
-            }
-            if (displayTugasList.isNotEmpty()) {
-                updateSubmissionList(displayTugasList[0])
+                showAddTugasDialog(null) // Tambah baru
             }
         } else {
             binding.btnAdd.visibility = View.GONE
             binding.layoutSubmissions.visibility = View.GONE
+        }
+    }
+
+    private fun fetchTugasFromApi() {
+        lifecycleScope.launch {
+            try {
+                val repository = SchoolRepository.Companion.getInstance(
+                    ApiConfig.getApiService(),
+                    SekolahDatabase.Companion.getInstance(requireContext()).sekolahDao()
+                )
+                repository.getTugas().collect { response ->
+                    if (response.success) {
+                        val apiTasks = response.data.map { item ->
+                            TugasModel(
+                                id = item.uuid,
+                                title = item.namaUjian,
+                                description = item.deskripsi,
+                                deadline = "${item.deadlineTanggal}-${item.deadlineBulan}-${item.deadlineTahun}",
+                                time = item.deadlineJam,
+                                teacherId = item.guru?.email,
+                                isDone = false
+                            )
+                        }
+                        // Gabungkan dengan data lokal (simulasi)
+                        apiTasks.forEach { apiTask ->
+                            if (fullTugasList.none { it.id == apiTask.id }) {
+                                fullTugasList.add(apiTask)
+                            }
+                        }
+                        saveTugasData()
+                        applyFilters()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -93,7 +125,7 @@ class AssignmentsFragment : Fragment() {
             isGuru = isGuru,
             onTugasClicked = { selectedTugas ->
                 if (isGuru) {
-                    updateSubmissionList(selectedTugas)
+                    showEditTugasDialog(selectedTugas)
                 }
             },
             onDeleteClicked = { tugas ->
@@ -115,88 +147,20 @@ class AssignmentsFragment : Fragment() {
             .setTitle("Hapus Tugas")
             .setMessage("Apakah Anda yakin ingin menghapus tugas '${tugas.title}'?")
             .setPositiveButton("Hapus") { _, _ ->
-                // Hapus dari list utama (full list)
                 fullTugasList.removeAll { it.id == tugas.id }
                 saveTugasData()
-
-                // Filter ulang dan update UI
                 applyFilters()
-
-                if (displayTugasList.isEmpty()) {
-                    binding.tvSelectedTugas.text = "Status Pengumpulan: (Pilih Tugas)"
-                    submissionAdapter?.updateData(emptyList(), false)
-                } else {
-                    updateSubmissionList(displayTugasList[0])
-                }
-
                 Toast.makeText(requireContext(), "Tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun updateSubmissionList(tugas: TugasModel) {
-        binding.tvSelectedTugas.text = "Status Pengumpulan: ${tugas.title}"
-        val isExpired = checkIfExpired(tugas.deadline, tugas.time)
-
-        val submissions = tugas.submissions ?: emptyList()
-
-        if (submissions.isEmpty()) {
-            fetchStudentsForTask(tugas)
-        } else {
-            submissionAdapter?.updateData(submissions, isExpired)
-        }
+    private fun showEditTugasDialog(tugas: TugasModel) {
+        showAddTugasDialog(tugas)
     }
 
-    private fun fetchStudentsForTask(tugas: TugasModel) {
-        val userPref = UserPreference(requireContext())
-        val kelasId = userPref.getUser().age
-
-        lifecycleScope.launch {
-            val repository = SchoolRepository.Companion.getInstance(
-                ApiConfig.getApiService(),
-                SekolahDatabase.Companion.getInstance(requireContext()).sekolahDao()
-            )
-
-            repository.getSiswa().collect { response ->
-                val students = response.data
-                    .filter { it.kelasId == kelasId }
-                    .take(10)
-                    .map {
-                        SubmissionModel(
-                            studentName = it.nama,
-                            studentId = it.id.toString(),
-                            isCompleted = false
-                        )
-                    }
-
-                if (students.isNotEmpty()) {
-                    // Update di list utama agar tersimpan permanen
-                    val index = fullTugasList.indexOfFirst { it.id == tugas.id }
-                    if (index != -1) {
-                        fullTugasList[index] = fullTugasList[index].copy(submissions = students)
-                        saveTugasData()
-                        applyFilters()
-                        submissionAdapter?.updateData(students, checkIfExpired(tugas.deadline, tugas.time))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun checkIfExpired(deadlineDate: String?, deadlineTime: String?): Boolean {
-        if (deadlineDate.isNullOrEmpty() || deadlineTime.isNullOrEmpty()) return false
-        return try {
-            val format = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-            val deadlineStr = "$deadlineDate $deadlineTime"
-            val deadline = format.parse(deadlineStr)
-            deadline != null && Date().after(deadline)
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun showAddTugasDialog(kelasId: Int) {
+    private fun showAddTugasDialog(existingTugas: TugasModel?) {
         val dialogBinding = DialogAddTugasBinding.inflate(layoutInflater)
         currentDialogBinding = dialogBinding
 
@@ -206,6 +170,18 @@ class AssignmentsFragment : Fragment() {
             .create()
 
         dialog.window?.setBackgroundDrawableResource(R.color.transparent)
+
+        // Pre-fill jika edit
+        if (existingTugas != null) {
+            dialogBinding.etTugasTitle.setText(existingTugas.title)
+            dialogBinding.etTugasDeadline.setText(existingTugas.deadline)
+            dialogBinding.etTugasTime.setText(existingTugas.time)
+            dialogBinding.etTugasDesc.setText(existingTugas.description)
+            if (existingTugas.fileName != null) {
+                dialogBinding.tvFileName.visibility = View.VISIBLE
+                dialogBinding.tvFileName.text = "Lampiran: ${existingTugas.fileName}"
+            }
+        }
 
         dialogBinding.btnUploadFile.setOnClickListener {
             pickFileLauncher.launch("*/*")
@@ -227,48 +203,41 @@ class AssignmentsFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
-                val repository = SchoolRepository.Companion.getInstance(
-                    ApiConfig.getApiService(),
-                    SekolahDatabase.Companion.getInstance(requireContext()).sekolahDao()
+            val userPref = UserPreference(requireContext())
+            val currentUser = userPref.getUser()
+
+            if (existingTugas == null) {
+                // Tambah baru
+                val newTugas = TugasModel(
+                    title = title,
+                    deadline = deadline,
+                    time = time,
+                    description = desc,
+                    fileName = selectedFileName,
+                    filePath = selectedFileUri?.toString(),
+                    teacherId = currentUser.email,
+                    kelasId = currentUser.age
                 )
-
-                repository.getSiswa().collect { response ->
-                    val filteredMurid = response.data
-                        .filter { it.kelasId == kelasId }
-                        .take(10)
-                        .map {
-                            SubmissionModel(
-                                studentName = it.nama,
-                                studentId = it.id.toString(),
-                                isCompleted = false
-                            )
-                        }
-
-                    val currentUser = UserPreference(requireContext()).getUser()
-
-                    val newTugas = TugasModel(
+                fullTugasList.add(0, newTugas)
+            } else {
+                // Update existing
+                val index = fullTugasList.indexOfFirst { it.id == existingTugas.id }
+                if (index != -1) {
+                    fullTugasList[index] = existingTugas.copy(
                         title = title,
                         deadline = deadline,
                         time = time,
                         description = desc,
-                        fileName = selectedFileName,
-                        filePath = selectedFileUri?.toString(),
-                        submissions = filteredMurid,
-                        teacherId = currentUser.email, // ID Guru pembuat
-                        kelasId = kelasId              // ID Kelas tujuan
+                        fileName = selectedFileName ?: existingTugas.fileName,
+                        filePath = selectedFileUri?.toString() ?: existingTugas.filePath
                     )
-
-                    fullTugasList.add(0, newTugas)
-                    saveTugasData()
-                    applyFilters()
-                    updateSubmissionList(newTugas)
-                    binding.rvAssignment.scrollToPosition(0)
-
-                    Toast.makeText(requireContext(), "Tugas dikirim ke kelas Anda!", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
                 }
             }
+
+            saveTugasData()
+            applyFilters()
+            Toast.makeText(requireContext(), "Tugas berhasil disimpan!", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
         }
 
         dialog.show()
@@ -296,12 +265,10 @@ class AssignmentsFragment : Fragment() {
         val user = UserPreference(requireContext()).getUser()
         displayTugasList.clear()
 
-        if (user.role == "guru") {
-            // Guru hanya melihat tugas yang dia buat sendiri
+        if (user.role?.equals("guru", ignoreCase = true) == true) {
             displayTugasList.addAll(fullTugasList.filter { it.teacherId == user.email })
         } else {
-            // Murid hanya melihat tugas yang ditujukan untuk kelasnya
-            displayTugasList.addAll(fullTugasList.filter { it.kelasId == user.age }) // user.age = kelasId
+            displayTugasList.addAll(fullTugasList.filter { it.kelasId == user.age })
         }
 
         if (::taskAdapter.isInitialized) {
@@ -312,10 +279,6 @@ class AssignmentsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadAndFilterTugasData()
-        val userPref = UserPreference(requireContext())
-        if (userPref.getUser().role == "guru" && displayTugasList.isNotEmpty()) {
-            updateSubmissionList(displayTugasList[0])
-        }
     }
 
     override fun onDestroyView() {

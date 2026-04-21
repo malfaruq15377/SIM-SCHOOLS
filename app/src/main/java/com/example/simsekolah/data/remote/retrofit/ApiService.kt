@@ -34,6 +34,9 @@ interface ApiService {
     @GET("jadwal")
     suspend fun getJadwal(): JadwalResponse
 
+    @GET("tugas")
+    suspend fun getTugas(): TugasResponse
+
     @GET("siswa")
     suspend fun getSiswa(): SiswaResponse
 

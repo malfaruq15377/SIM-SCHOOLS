@@ -10,8 +10,11 @@ import com.example.simsekolah.data.remote.response.JadwalItem
 import com.example.simsekolah.databinding.ItemDayScheduleBinding
 import com.example.simsekolah.databinding.ItemScheduleRowBinding
 
-class DayScheduleAdapter(private var daySchedules: List<DaySchedule>) :
-    RecyclerView.Adapter<DayScheduleAdapter.ViewHolder>() {
+class DayScheduleAdapter(
+    private var daySchedules: List<DaySchedule>,
+    private val isGuru: Boolean = false,
+    private val onEditClicked: (DaySchedule) -> Unit = {}
+) : RecyclerView.Adapter<DayScheduleAdapter.ViewHolder>() {
 
     data class DaySchedule(
         val dayName: String,
@@ -31,6 +34,12 @@ class DayScheduleAdapter(private var daySchedules: List<DaySchedule>) :
         
         holder.binding.tvDayName.text = dayData.dayName
         
+        // Show edit button only for Guru
+        holder.binding.btnEditDay.visibility = if (isGuru) View.VISIBLE else View.GONE
+        holder.binding.btnEditDay.setOnClickListener {
+            onEditClicked(dayData)
+        }
+
         // Setup inner RecyclerView untuk baris jadwal
         val rowAdapter = ScheduleRowAdapter(dayData.items)
         holder.binding.rvDayItems.layoutManager = LinearLayoutManager(holder.itemView.context)

@@ -16,6 +16,7 @@ class SchoolRepository(
     fun getMapel() = flow { emit(apiService.getMapel()) }
     fun getKelas() = flow { emit(apiService.getKelas()) }
     fun getJadwal() = flow { emit(apiService.getJadwal()) }
+    fun getTugas() = flow { emit(apiService.getTugas()) }
     fun getGuru() = flow { emit(apiService.getGuru()) }
     fun getSiswa() = flow { emit(apiService.getSiswa()) }
     fun getNilai() = flow { emit(apiService.getNilai()) }
