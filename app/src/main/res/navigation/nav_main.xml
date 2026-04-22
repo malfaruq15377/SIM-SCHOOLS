@@ -15,7 +15,24 @@
         android:id="@+id/scheduleFragment"
         android:name="com.example.simsekolah.ui.schedule.ScheduleFragment"
         android:label="@string/schedule"
-        tools:layout="@layout/fragment_schedule" />
+        tools:layout="@layout/fragment_schedule">
+        <action
+            android:id="@+id/action_scheduleFragment_to_editScheduleFragment"
+            app:destination="@id/editScheduleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editScheduleFragment"
+        android:name="com.example.simsekolah.ui.schedule.EditScheduleFragment"
+        android:label="Edit Schedule"
+        tools:layout="@layout/fragment_edit_schedule">
+        <argument
+            android:name="day_name"
+            app:argType="string" />
+        <argument
+            android:name="schedule_json"
+            app:argType="string" />
+    </fragment>
         
     <fragment
         android:id="@+id/attendanceFragment"

@@ -6,14 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.simsekolah.databinding.FragmentTeacherTakeAttendanceBinding
+import com.example.simsekolah.utils.ViewModelFactory
 
 class TakeAttendanceFragment : Fragment() {
 
     private var _binding: FragmentTeacherTakeAttendanceBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: AttendanceViewModel by viewModels {
+        ViewModelFactory.Companion.getInstance(requireContext())
+    }
+
+    private lateinit var adapter: StudentMarkingAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +38,7 @@ class TakeAttendanceFragment : Fragment() {
         binding.tvSessionDate.text = sessionDate
 
         setupRecyclerView()
+        observeViewModel()
 
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
@@ -39,18 +48,32 @@ class TakeAttendanceFragment : Fragment() {
             Toast.makeText(requireContext(), "Attendance Saved!", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
+
+        // Ambil data siswa (wali murid Pak Budi)
+        viewModel.fetchSiswa()
     }
 
     private fun setupRecyclerView() {
         binding.rvStudentAttendance.layoutManager = LinearLayoutManager(requireContext())
-        
-        // Simulasi List Murid
-        val students = listOf(
-            StudentMarkingAdapter.StudentMarkingItem("Muhammad Alfaruq", "alfaruq@email.com"),
-            StudentMarkingAdapter.StudentMarkingItem("Ahmad Saugi", "saugi@email.com"),
-            StudentMarkingAdapter.StudentMarkingItem("Budi Doremi", "budi@email.com")
-        )
-        binding.rvStudentAttendance.adapter = StudentMarkingAdapter(students)
+    }
+
+    private fun observeViewModel() {
+        viewModel.siswaList.observe(viewLifecycleOwner) { students ->
+            // Map SiswaItem ke StudentMarkingItem
+            val markingItems = students.map { siswa ->
+                StudentMarkingAdapter.StudentMarkingItem(
+                    name = siswa.nama,
+                    email = siswa.email ?: "-",
+                    status = "" // Default Kosong sesuai permintaan
+                )
+            }
+            adapter = StudentMarkingAdapter(markingItems)
+            binding.rvStudentAttendance.adapter = adapter
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressbar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onDestroyView() {
