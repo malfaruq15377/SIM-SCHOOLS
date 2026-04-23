@@ -13,8 +13,8 @@ data class TugasModel(
     val fileName: String? = null,
     val filePath: String? = null,
     var isDone: Boolean = false,
-    val teacherId: String? = null, // Email atau ID Guru
-    val kelasId: Int? = null,      // ID Kelas agar hanya murid di kelas ini yang bisa lihat
+    val teacherId: String? = null,
+    val kelasId: Int? = null,
     val submissions: List<SubmissionModel> = emptyList()
 ) : Parcelable
 

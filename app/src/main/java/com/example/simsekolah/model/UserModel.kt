@@ -16,8 +16,9 @@ data class UserModel(
     var weight: Double = 0.0,
     var dateOfBirth: String? = null,
     var noPhone: String? = null,
-    var age: Int = 0,
+    var age: Int = 0, // Digunakan sebagai penampung kelasId
     var image: String? = null,
     var role: String? = null,
-    var token: String? = null
+    var token: String? = null,
+    var waliKelasName: String? = null // Field baru untuk nama wali kelas
 ): Parcelable

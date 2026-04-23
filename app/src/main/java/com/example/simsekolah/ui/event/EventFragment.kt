@@ -1,13 +1,14 @@
 package com.example.simsekolah.ui.event
 
 import android.app.AlarmManager
-import android.app.PendingIntent
+import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +16,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,9 +28,10 @@ import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.ui.home.CalendarAdapter
 import com.example.simsekolah.databinding.DialogAddEventBinding
 import com.example.simsekolah.model.EventModel
-import com.example.simsekolah.receiver.AlarmReceiver
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -75,6 +79,7 @@ class EventFragment : Fragment() {
         loadEvents()
         updateCalendarUI()
         setupEventList()
+        startAutoSync()
 
         btnPrevMonth?.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -85,17 +90,41 @@ class EventFragment : Fragment() {
             calendar.add(Calendar.MONTH, 1)
             updateCalendarUI()
         }
-
-        checkAlarmPermission()
     }
 
-    private fun checkAlarmPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            if (!alarmManager.canScheduleExactAlarms()) {
-                // Optional: Show dialog
+    private fun startAutoSync() {
+        lifecycleScope.launch {
+            while (true) {
+                val oldSize = eventList.size
+                loadEvents()
+                if (eventList.size > oldSize && oldSize != 0) {
+                    val user = userPreference?.getUser()
+                    if (user?.role?.equals("guru", ignoreCase = true) == false) {
+                        showNotification("Event Baru!", "Sekolah menambahkan event baru")
+                        updateCalendarUI()
+                        eventAdapter?.updateList(eventList)
+                    }
+                }
+                delay(5000)
             }
         }
+    }
+
+    private fun showNotification(title: String, message: String) {
+        val channelId = "event_channel"
+        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, "Events", NotificationManager.IMPORTANCE_HIGH)
+            notificationManager.createNotificationChannel(channel)
+        }
+        val notification = NotificationCompat.Builder(requireContext(), channelId)
+            .setSmallIcon(R.drawable.ic_event)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
     private fun updateCalendarUI() {

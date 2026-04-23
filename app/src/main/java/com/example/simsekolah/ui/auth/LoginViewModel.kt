@@ -44,12 +44,11 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
                                 (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
                             }
                             if (guru != null) {
-                                // Simpan kelasId ke UserModel agar bisa memfilter murid
                                 _loginResult.value = Result.success(UserModel(
                                     name = guru.name, 
                                     email = guru.email, 
                                     role = "guru",
-                                    age = guru.kelasId ?: 0 // Menggunakan age sebagai penampung sementara kelasId jika model tidak diupdate
+                                    age = guru.kelasId ?: 0
                                 ))
                             } else {
                                 _loginResult.value = Result.failure(Exception("Username atau password salah"))
@@ -66,12 +65,30 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
                                 (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
                             }
                             if (murid != null) {
-                                _loginResult.value = Result.success(UserModel(
-                                    name = murid.nama, 
-                                    email = murid.email, 
-                                    role = "murid",
-                                    age = murid.kelasId ?: 0
-                                ))
+                                // Ambil nama guru berdasarkan kelasId (SIMULASI: mencari guru dengan kelasId yang sama)
+                                var waliKelas: String? = "Belum Ada Wali Kelas"
+                                repository.getGuru().collect { guruResponse ->
+                                    if (guruResponse.success) {
+                                        val guru = guruResponse.data.find { it.kelasId == murid.kelasId }
+                                        waliKelas = guru?.name ?: "Guru Belum Terdaftar"
+                                        
+                                        _loginResult.value = Result.success(UserModel(
+                                            name = murid.nama, 
+                                            email = murid.email, 
+                                            role = "murid",
+                                            age = murid.kelasId ?: 0,
+                                            waliKelasName = waliKelas
+                                        ))
+                                    } else {
+                                        _loginResult.value = Result.success(UserModel(
+                                            name = murid.nama, 
+                                            email = murid.email, 
+                                            role = "murid",
+                                            age = murid.kelasId ?: 0,
+                                            waliKelasName = "Gagal memuat wali kelas"
+                                        ))
+                                    }
+                                }
                             } else {
                                 _loginResult.value = Result.failure(Exception("Username atau password salah"))
                             }

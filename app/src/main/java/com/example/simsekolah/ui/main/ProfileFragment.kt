@@ -83,12 +83,13 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private fun populateView(user: UserModel) {
         with(binding) {
-            val roleName = if (user.role == "guru") "GURU" else "MURID"
+            val isGuru = user.role?.equals("guru", ignoreCase = true) == true
+            val roleName = if (isGuru) "GURU" else "MURID"
             
             // Header Info
             tvDisplayName.text = user.name ?: "No Name"
             tvDisplayRole.text = roleName
-            tvDisplayMajor.text = "Class ID: ${user.age}" // Menggunakan age sebagai penampung kelasId
+            tvDisplayMajor.text = "Class ID: ${user.age}"
 
             // Stats Badges
             tvStatusBadge.text = roleName
@@ -101,9 +102,15 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             tvClassInfo.text = user.age.toString()
             tvEmail.text = user.email ?: "No Email"
             
-            // Other Info
-            // tvPhone.text = user.noPhone ?: "-"
-            // tvAddress.text = user.address ?: "-"
+            // Wali Kelas Logic
+            if (!isGuru) {
+                layoutWaliKelas.visibility = View.VISIBLE
+                viewDividerWali.visibility = View.VISIBLE
+                tvWaliKelas.text = user.waliKelasName ?: "Belum Ditentukan"
+            } else {
+                layoutWaliKelas.visibility = View.GONE
+                viewDividerWali.visibility = View.GONE
+            }
         }
     }
 

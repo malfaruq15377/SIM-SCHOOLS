@@ -54,19 +54,19 @@
         android:id="@+id/rvStudentAttendance"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingBottom="80dp"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnSaveAttendance"
         app:layout_constraintTop_toBottomOf="@id/layoutSessionInfo"
         tools:listitem="@layout/item_student_attendance" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSaveAttendance"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_margin="16dp"
         android:text="Save Attendance"
         android:textAllCaps="false"
+        app:cornerRadius="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:backgroundTint="@color/md_theme_light_primary"/>
 
@@ -74,7 +74,10 @@
         android:id="@+id/progressbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

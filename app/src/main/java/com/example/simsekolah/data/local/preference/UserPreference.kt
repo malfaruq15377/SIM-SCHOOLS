@@ -20,6 +20,8 @@ class UserPreference(context: Context) {
         private const val DATE_OF_BIRTH = "date_of_birth"
         private const val ROLE = "role"
         private const val TOKEN = "token"
+        private const val WALI_KELAS_NAME = "wali_kelas_name"
+        private const val IS_REMINDER_ASKED = "is_reminder_asked"
     }
 
     private val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -39,6 +41,7 @@ class UserPreference(context: Context) {
             putString(DATE_OF_BIRTH, value.dateOfBirth)
             putString(ROLE, value.role)
             putString(TOKEN, value.token)
+            putString(WALI_KELAS_NAME, value.waliKelasName)
         }
     }
 
@@ -56,8 +59,15 @@ class UserPreference(context: Context) {
             height = preferences.getFloat(HEIGHT, 0f).toDouble(),
             dateOfBirth = preferences.getString(DATE_OF_BIRTH, ""),
             role = preferences.getString(ROLE, ""),
-            token = preferences.getString(TOKEN, "")
+            token = preferences.getString(TOKEN, ""),
+            waliKelasName = preferences.getString(WALI_KELAS_NAME, "")
         )
+    }
+
+    fun isReminderAsked(): Boolean = preferences.getBoolean(IS_REMINDER_ASKED, false)
+
+    fun setReminderAsked(asked: Boolean) {
+        preferences.edit { putBoolean(IS_REMINDER_ASKED, asked) }
     }
 
     fun logout() {

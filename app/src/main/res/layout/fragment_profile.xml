@@ -263,6 +263,20 @@
                         <TextView android:id="@+id/tv_class_info" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
                     </LinearLayout>
 
+                    <View android:id="@+id/view_divider_wali" android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp" android:visibility="gone"/>
+
+                    <!-- WALI KELAS (Hanya Muncul untuk Murid) -->
+                    <LinearLayout
+                        android:id="@+id/layout_wali_kelas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wali Kelas" android:textSize="11sp" android:textColor="#6C757D" android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        <TextView android:id="@+id/tv_wali_kelas" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textStyle="bold" android:textSize="15sp" android:textColor="#1A1C1E" android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1F3F5" android:layout_marginHorizontal="12dp"/>
 
                     <LinearLayout

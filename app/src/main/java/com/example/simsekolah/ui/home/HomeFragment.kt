@@ -80,12 +80,20 @@ class HomeFragment : Fragment() {
 
     private fun setupAssignments() {
         loadTugasData()
+        val user = userPreference.getUser()
+        val isGuru = user.role?.equals("guru", ignoreCase = true) == true
 
-        // Filter: Hanya tampilkan tugas yang BELUM selesai (isDone == false)
-        val activeTugas = tugasList.filter { !it.isDone }
+        // Filter Tugas agar tepat sasaran
+        val filteredTugas = if (isGuru) {
+            // Guru hanya melihat tugas yang ia buat sendiri
+            tugasList.filter { it.teacherId == user.email }
+        } else {
+            // Murid hanya melihat tugas untuk kelasnya dan yang belum dikerjakan
+            tugasList.filter { it.kelasId == user.age && !it.isDone }
+        }
 
         // Update Visibility "NO ASSIGNMENT"
-        if (activeTugas.isEmpty()) {
+        if (filteredTugas.isEmpty()) {
             binding.tvNoAssignment.visibility = View.VISIBLE
             binding.rvTugas.visibility = View.GONE
         } else {
@@ -93,7 +101,10 @@ class HomeFragment : Fragment() {
             binding.rvTugas.visibility = View.VISIBLE
         }
 
-        adapterTugas = TugasAdapter(activeTugas)
+        adapterTugas = TugasAdapter(
+            listTugas = filteredTugas,
+            isGuru = isGuru
+        )
         binding.rvTugas.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterTugas

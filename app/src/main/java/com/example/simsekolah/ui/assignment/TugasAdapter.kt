@@ -26,10 +26,7 @@ class TugasAdapter(
     }
 
     override fun onBindViewHolder(holder: TugasViewHolder, position: Int) {
-        val displayList = if (!isGuru) listTugas.filter { !it.isDone } else listTugas
-
-        if (position >= displayList.size) return
-        val data = displayList[position]
+        val data = listTugas[position]
 
         holder.binding.apply {
             tvDeadline.text = "Deadline: ${data.deadline}"
@@ -68,7 +65,5 @@ class TugasAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return if (!isGuru) listTugas.count { !it.isDone } else listTugas.size
-    }
+    override fun getItemCount(): Int = listTugas.size
 }
