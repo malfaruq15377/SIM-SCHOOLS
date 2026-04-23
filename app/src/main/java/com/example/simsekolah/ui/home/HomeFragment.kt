@@ -18,9 +18,11 @@ import com.example.simsekolah.ui.assignment.TugasAdapter
 import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.databinding.FragmentHomeBinding
 import com.example.simsekolah.model.TugasModel
+import com.example.simsekolah.utils.NotificationHelper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+import java.util.Calendar
 import kotlin.math.abs
 
 class HomeFragment : Fragment() {
@@ -53,12 +55,50 @@ class HomeFragment : Fragment() {
         setupMenu()
         loadProfileImage()
         setupAssignments()
+        checkAttendanceReminder()
+        updateNotificationBadge()
     }
 
     override fun onResume() {
         super.onResume()
         loadProfileImage()
-        setupAssignments() // Muat ulang data setiap kali kembali ke Home
+        setupAssignments()
+        updateNotificationBadge()
+    }
+
+    private fun updateNotificationBadge() {
+        if (NotificationHelper.hasUnread(requireContext())) {
+            binding.notificationBadge.visibility = View.VISIBLE
+        } else {
+            binding.notificationBadge.visibility = View.GONE
+        }
+    }
+
+    private fun checkAttendanceReminder() {
+        val user = userPreference.getUser()
+        if (user.role == "guru") return
+
+        val now = Calendar.getInstance()
+        val hour = now.get(Calendar.HOUR_OF_DAY)
+        val minute = now.get(Calendar.MINUTE)
+
+        // Simulasi: Jika jam menunjukkan 07:50 (10 menit sebelum jam 8)
+        if (hour == 7 && minute == 50) {
+            val pref = requireActivity().getSharedPreferences("AttendanceReminder", Context.MODE_PRIVATE)
+            val lastRemindedDate = pref.getString("last_reminded_date", "")
+            val today = "${now.get(Calendar.YEAR)}-${now.get(Calendar.MONTH)}-${now.get(Calendar.DAY_OF_MONTH)}"
+
+            if (lastRemindedDate != today) {
+                NotificationHelper.addNotification(
+                    requireContext(),
+                    "Pengingat Absen",
+                    "10 menit lagi masuk nih, jangan lupa absen ya!",
+                    "absensi"
+                )
+                pref.edit().putString("last_reminded_date", today).apply()
+                updateNotificationBadge()
+            }
+        }
     }
 
     private fun loadProfileImage() {
@@ -83,16 +123,12 @@ class HomeFragment : Fragment() {
         val user = userPreference.getUser()
         val isGuru = user.role?.equals("guru", ignoreCase = true) == true
 
-        // Filter Tugas agar tepat sasaran
         val filteredTugas = if (isGuru) {
-            // Guru hanya melihat tugas yang ia buat sendiri
             tugasList.filter { it.teacherId == user.email }
         } else {
-            // Murid hanya melihat tugas untuk kelasnya dan yang belum dikerjakan
             tugasList.filter { it.kelasId == user.age && !it.isDone }
         }
 
-        // Update Visibility "NO ASSIGNMENT"
         if (filteredTugas.isEmpty()) {
             binding.tvNoAssignment.visibility = View.VISIBLE
             binding.rvTugas.visibility = View.GONE
@@ -141,7 +177,6 @@ class HomeFragment : Fragment() {
             page.alpha = 0.5f + (1 - abs(position)) * 0.5f
         }
 
-        // AUTO SLIDE
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
             override fun run() {
@@ -173,6 +208,10 @@ class HomeFragment : Fragment() {
 
         binding.ivProfile.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
+        }
+
+        binding.btnNotification.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_notificationsFragment)
         }
     }
 

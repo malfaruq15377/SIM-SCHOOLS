@@ -4,11 +4,15 @@ import android.Manifest
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
@@ -40,10 +44,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        makeStatusBarTransparent()
+        // 1. Mengaktifkan Mode Edge-to-Edge agar konten bisa di bawah status bar/nav bar
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 2. Menangani Insets (Status Bar & Navigation Bar) agar konten tidak terhalang kamera/notch
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Memberikan padding atas otomatis sesuai tinggi Status Bar (menghindari kamera depan)
+            binding.navHostFragment.updatePadding(top = insets.top)
+            
+            // Memberikan padding bawah agar konten tidak terhalang Bottom Navigation yang melayang
+            // (Padding disesuaikan agar item terakhir di list bisa di-scroll sampai ke atas BottomNav)
+            binding.navHostFragment.updatePadding(bottom = insets.bottom)
+            
+            windowInsets
+        }
 
         userPref = UserPreference(this)
 
@@ -51,6 +72,18 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         binding.bottomNavigation.setupWithNavController(navController)
+
+        // Kontrol visibilitas Bottom Nav berdasarkan fragment
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.loginActivity, R.id.registerActivity, R.id.takeAttendanceFragment -> {
+                    binding.bottomNavContainer.visibility = View.GONE
+                }
+                else -> {
+                    binding.bottomNavContainer.visibility = View.VISIBLE
+                }
+            }
+        }
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             val handled = NavigationUI.onNavDestinationSelected(item, navController)
@@ -110,10 +143,5 @@ class MainActivity : AppCompatActivity() {
             WorkManager.getInstance(this).enqueue(workRequest)
             Toast.makeText(this, "Reminder dijadwalkan untuk 23 April 2026 jam 10:00", Toast.LENGTH_LONG).show()
         }
-    }
-
-    private fun makeStatusBarTransparent() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.TRANSPARENT
     }
 }

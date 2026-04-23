@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
@@ -38,7 +36,7 @@ class AssignmentsFragment : Fragment() {
     private lateinit var taskAdapter: TugasAdapter
     private val displayTugasList = mutableListOf<TugasModel>()
     
-    // Gunakan Realtime Database
+    // Gunakan Realtime Database - Sesuaikan URL jika berbeda
     private val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
 
     override fun onCreateView(
@@ -90,7 +88,9 @@ class AssignmentsFragment : Fragment() {
                 }
                 
                 displayTugasList.sortByDescending { it.id }
-                taskAdapter.updateData(displayTugasList)
+                if (::taskAdapter.isInitialized) {
+                    taskAdapter.updateData(displayTugasList)
+                }
 
                 // Notifikasi untuk Siswa
                 if (!role.equals("guru", ignoreCase = true) && displayTugasList.size > oldSize && oldSize != 0) {
