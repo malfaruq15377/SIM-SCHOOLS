@@ -8,6 +8,7 @@ import com.example.simsekolah.di.Injection
 import com.example.simsekolah.ui.auth.LoginViewModel
 import com.example.simsekolah.ui.attendance.AttendanceViewModel
 import com.example.simsekolah.ui.schedule.ScheduleViewModel
+import com.example.simsekolah.ui.assignment.AssignmentsViewModel
 
 class ViewModelFactory(private val repository: SchoolRepository) : ViewModelProvider.NewInstanceFactory() {
 
@@ -21,6 +22,9 @@ class ViewModelFactory(private val repository: SchoolRepository) : ViewModelProv
         }
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel(repository) as T
+        }
+        if (modelClass.isAssignableFrom(AssignmentsViewModel::class.java)) {
+            return AssignmentsViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }

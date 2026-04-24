@@ -52,8 +52,7 @@
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:padding="15dp"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_tugas" />
+                android:nestedScrollingEnabled="false" />
 
             <!-- Bagian Bawah: Status Siswa (Hanya muncul untuk Guru) -->
             <LinearLayout
@@ -93,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="120dp"
         android:backgroundTint="#4F46E5"
         android:src="@android:drawable/ic_input_add"
         app:tint="@android:color/white"

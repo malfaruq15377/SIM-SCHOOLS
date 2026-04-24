@@ -1,16 +1,15 @@
 package com.example.simsekolah.ui.assignment
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.R
 import com.example.simsekolah.databinding.ItemSubmissionStatusBinding
 import com.example.simsekolah.model.SubmissionModel
 
 class SubmissionAdapter(
-    private var list: List<SubmissionModel>,
-    private var isDeadlineExpired: Boolean = false
+    private var list: List<SubmissionModel>
 ) : RecyclerView.Adapter<SubmissionAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemSubmissionStatusBinding) :
@@ -31,22 +30,21 @@ class SubmissionAdapter(
             tvStudentName.text = data.studentName
 
             if (data.isCompleted) {
-                // SUDAH MENGERJAKAN -> BIRU (#4C8DFF)
-                tvStudentName.setTextColor(Color.parseColor("#4C8DFF"))
-                tvStatus.text = "Completed"
-                tvStatus.setBackgroundResource(R.drawable.bg_status_completed)
+                // SUDAH MENGERJAKAN -> completed (Biru)
+                tvStatus.text = "completed"
+                tvStatus.setTextColor(Color.parseColor("#4C8DFF"))
+                viewCircle.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4C8DFF"))
             } else {
-                // BELUM MENGERJAKAN -> MERAH (#FF4C4C)
-                tvStudentName.setTextColor(Color.parseColor("#FF4C4C"))
-                tvStatus.text = if (isDeadlineExpired) "Missing" else "Pending"
-                tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                // BELUM MENGERJAKAN -> not finished yet (Merah)
+                tvStatus.text = "not finished yet"
+                tvStatus.setTextColor(Color.parseColor("#EF4444"))
+                viewCircle.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1D5DB"))
             }
         }
     }
 
-    fun updateData(newList: List<SubmissionModel>, expired: Boolean) {
+    fun updateData(newList: List<SubmissionModel>) {
         list = newList
-        isDeadlineExpired = expired
         notifyDataSetChanged()
     }
 
