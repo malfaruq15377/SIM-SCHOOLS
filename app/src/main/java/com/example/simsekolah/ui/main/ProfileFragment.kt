@@ -12,10 +12,14 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.simsekolah.R
 import com.example.simsekolah.databinding.FragmentProfileBinding
 import com.example.simsekolah.ui.form.FormUserActivity
 import com.example.simsekolah.model.UserModel
@@ -31,12 +35,20 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private lateinit var userModel: UserModel
     private lateinit var mUserPreference: UserPreference
     
+    private var isPickingCover = false
+
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            val savedPath = saveImageToInternalStorage(it)
+            val fileName = if (isPickingCover) "cover_picture.jpg" else "profile_picture.jpg"
+            val savedPath = saveImageToInternalStorage(it, fileName)
             if (savedPath != null) {
-                saveProfilePath(savedPath)
-                loadProfileImage()
+                if (isPickingCover) {
+                    saveCoverPath(savedPath)
+                    loadCoverImage()
+                } else {
+                    saveProfilePath(savedPath)
+                    loadProfileImage()
+                }
             }
         }
     }
@@ -73,12 +85,41 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         userModel = mUserPreference.getUser()
         populateView(userModel)
         loadProfileImage()
+        loadCoverImage()
 
         binding.btnUpdate.setOnClickListener(this)
         binding.ivSetting.setOnClickListener(this)
         binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
-        binding.ivProfile.setOnClickListener { showImageDetail() }
-        binding.btnEditPhoto.setOnClickListener { openGallery() }
+        
+        // Klik foto profil atau icon camera untuk memunculkan pilihan
+        binding.ivProfile.setOnClickListener { showProfileOptionsDialog() }
+        binding.btnEditPhoto.setOnClickListener { showProfileOptionsDialog() }
+        
+        // Klik area cover untuk langsung ganti background juga bisa
+        binding.ivCover.setOnClickListener {
+            isPickingCover = true
+            openGallery()
+        }
+    }
+
+    private fun showProfileOptionsDialog() {
+        val options = arrayOf("Lihat Foto Profil", "Ganti Foto Profil", "Ganti Background Cover")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Opsi Profil")
+            .setItems(options) { _, which ->
+                when (options[which]) {
+                    "Lihat Foto Profil" -> showImageDetail()
+                    "Ganti Foto Profil" -> {
+                        isPickingCover = false
+                        openGallery()
+                    }
+                    "Ganti Background Cover" -> {
+                        isPickingCover = true
+                        openGallery()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun populateView(user: UserModel) {
@@ -86,30 +127,22 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             val isGuru = user.role?.equals("guru", ignoreCase = true) == true
             val roleName = if (isGuru) "GURU" else "MURID"
             
-            // Header Info
             tvDisplayName.text = user.name ?: "No Name"
             tvDisplayRole.text = roleName
             tvDisplayMajor.text = "Class ID: ${user.age}"
 
-            // Stats Badges
             tvStatusBadge.text = roleName
             tvClassBadge.text = user.age.toString()
             tvMajorBadge.text = user.major ?: "-"
 
-            // Personal Info List
             tvNama.text = user.name ?: "No Name"
-            tvRoleInfo.text = roleName
-            tvClassInfo.text = user.age.toString()
             tvEmail.text = user.email ?: "No Email"
             
-            // Wali Kelas Logic
             if (!isGuru) {
                 layoutWaliKelas.visibility = View.VISIBLE
-                viewDividerWali.visibility = View.VISIBLE
                 tvWaliKelas.text = user.waliKelasName ?: "Belum Ditentukan"
             } else {
                 layoutWaliKelas.visibility = View.GONE
-                viewDividerWali.visibility = View.GONE
             }
         }
     }
@@ -123,9 +156,25 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                     .load(file)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .placeholder(com.example.simsekolah.R.drawable.ic_profile)
+                    .placeholder(R.drawable.ic_profile)
                     .circleCrop()
                     .into(binding.ivProfile)
+            }
+        }
+    }
+
+    private fun loadCoverImage() {
+        val savedPath = getCoverPath()
+        if (savedPath != null) {
+            val file = File(savedPath)
+            if (file.exists()) {
+                Glide.with(this)
+                    .load(file)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .placeholder(R.drawable.bg_badge_purple)
+                    .centerCrop()
+                    .into(binding.ivCover)
             }
         }
     }
@@ -133,10 +182,10 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private fun showImageDetail() {
         val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(com.example.simsekolah.R.layout.dialog_image_detail)
+        dialog.setContentView(R.layout.dialog_image_detail)
 
-        val imageView = dialog.findViewById<ImageView>(com.example.simsekolah.R.id.iv_detail)
-        val btnClose = dialog.findViewById<ImageButton>(com.example.simsekolah.R.id.btn_close)
+        val imageView = dialog.findViewById<ImageView>(R.id.iv_detail)
+        val btnClose = dialog.findViewById<ImageButton>(R.id.btn_close)
 
         val savedPath = getProfilePath()
         if (savedPath != null) {
@@ -145,7 +194,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                 Glide.with(this).load(file).into(imageView)
             }
         } else {
-            imageView.setImageResource(com.example.simsekolah.R.drawable.ic_profile)
+            imageView.setImageResource(R.drawable.ic_profile)
         }
 
         btnClose.setOnClickListener { dialog.dismiss() }
@@ -162,10 +211,20 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         return sharedPref.getString("profile_path", null)
     }
 
-    private fun saveImageToInternalStorage(uri: Uri): String? {
+    private fun saveCoverPath(imagePath: String) {
+        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("cover_path", imagePath).apply()
+    }
+
+    private fun getCoverPath(): String? {
+        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
+        return sharedPref.getString("cover_path", null)
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri, fileName: String): String? {
         return try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val file = File(requireContext().filesDir, "profile_picture.jpg")
+            val file = File(requireContext().filesDir, fileName)
             val outputStream = FileOutputStream(file)
             inputStream?.copyTo(outputStream)
             inputStream?.close()
@@ -182,13 +241,13 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            com.example.simsekolah.R.id.btn_update -> {
+            R.id.btn_update -> {
                 val intent = Intent(requireContext(), FormUserActivity::class.java)
                 intent.putExtra(FormUserActivity.Companion.EXTRA_TYPE_FORM, FormUserActivity.Companion.TYPE_EDIT)
                 intent.putExtra(FormUserActivity.Companion.EXTRA_RESULT, userModel)
                 resultLauncher.launch(intent)
             }
-            com.example.simsekolah.R.id.iv_setting -> {
+            R.id.iv_setting -> {
                 val intent = Intent(requireContext(), SettingActivity::class.java)
                 startActivity(intent)
             }

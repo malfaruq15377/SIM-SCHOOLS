@@ -267,13 +267,6 @@
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:textColor="@color/md_theme_light_onSurface"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See All"
-                    android:textColor="@color/md_theme_light_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"/>
             </LinearLayout>
 
             <FrameLayout

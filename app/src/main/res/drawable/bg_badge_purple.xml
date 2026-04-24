@@ -6,9 +6,4 @@
         android:endColor="#0061A4"
         android:angle="270"/>
 
-    <!-- BIKIN MELENGKUNG DI BAWAH -->
-    <corners
-        android:bottomLeftRadius="40dp"
-        android:bottomRightRadius="40dp"/>
-
 </shape>
