@@ -30,26 +30,16 @@ class SubmissionAdapter(
         holder.binding.apply {
             tvStudentName.text = data.studentName
 
-            when {
-                data.isCompleted -> {
-                    // SUDAH MENGERJAKAN -> HIJAU
-                    tvStudentName.setTextColor(Color.parseColor("#2F9E44"))
-                    tvStatus.text = "Completed"
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_completed)
-                }
-                isDeadlineExpired -> {
-                    // TIDAK MENGERJAKAN (Deadline Lewat) -> MERAH
-                    tvStudentName.setTextColor(Color.parseColor("#E03131"))
-                    tvStatus.text = "Missing"
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
-                }
-                else -> {
-                    // BELUM MENAMBAHKAN (Masih ada waktu) -> ABU-ABU
-                    tvStudentName.setTextColor(Color.parseColor("#777777"))
-                    tvStatus.text = "Pending"
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
-                    // Kita bisa buat bg_status_gray jika ingin backgroundnya abu juga
-                }
+            if (data.isCompleted) {
+                // SUDAH MENGERJAKAN -> BIRU (#4C8DFF)
+                tvStudentName.setTextColor(Color.parseColor("#4C8DFF"))
+                tvStatus.text = "Completed"
+                tvStatus.setBackgroundResource(R.drawable.bg_status_completed)
+            } else {
+                // BELUM MENGERJAKAN -> MERAH (#FF4C4C)
+                tvStudentName.setTextColor(Color.parseColor("#FF4C4C"))
+                tvStatus.text = if (isDeadlineExpired) "Missing" else "Pending"
+                tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
             }
         }
     }

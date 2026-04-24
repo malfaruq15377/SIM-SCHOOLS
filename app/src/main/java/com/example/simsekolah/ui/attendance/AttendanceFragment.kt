@@ -27,6 +27,10 @@ import com.example.simsekolah.utils.NotificationHelper
 import com.example.simsekolah.utils.ViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
@@ -51,10 +55,9 @@ class AttendanceFragment : Fragment() {
     private val schoolLongitude = 106.827153
     private val schoolRadiusInMeters = 100.0
     
-    // KONFIGURASI WAKTU ABSENSI
-    private val startHour = 8
+    private val startHour = 10
     private val startMinute = 0
-    private val lateHour = 10
+    private val lateHour = 12
     private val lateMinute = 0
 
     override fun onCreateView(
@@ -87,18 +90,33 @@ class AttendanceFragment : Fragment() {
         val binding = _bindingTeacher!!
         binding.rvTeacherAttendance.layoutManager = LinearLayoutManager(requireContext())
         
-        viewModel.sessionDays.observe(viewLifecycleOwner) { days ->
-            val sessions = days.mapIndexed { index, date ->
-                AbsensiItem(id=index.toString(), muridId="0", tanggal=date, status="All students", keterangan="Regular class session")
-            }
-            binding.rvTeacherAttendance.adapter = TeacherAttendanceAdapter(sessions) { session ->
-                val bundle = Bundle().apply {
-                    putString("session_date", session.tanggal)
+        // Listener Real-time untuk Guru
+        val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
+        database.child("absensi").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (_bindingTeacher == null) return
+                
+                val list = mutableListOf<AbsensiItem>()
+                for (data in snapshot.children) {
+                    val item = data.getValue(AbsensiItem::class.java)
+                    if (item != null) list.add(item)
                 }
-                findNavController().navigate(R.id.action_attendanceFragment_to_takeAttendanceFragment, bundle)
+                
+                // Group by date for sessions
+                val uniqueDates = list.map { it.tanggal?.substring(0, 10) }.distinct().filterNotNull()
+                val sessions = uniqueDates.mapIndexed { index, date ->
+                    AbsensiItem(id=index.toString(), muridId="0", tanggal=date, status="View Details", keterangan="Class session")
+                }.sortedByDescending { it.tanggal }
+
+                binding.rvTeacherAttendance.adapter = TeacherAttendanceAdapter(sessions) { session ->
+                    val bundle = Bundle().apply {
+                        putString("session_date", session.tanggal)
+                    }
+                    findNavController().navigate(R.id.action_attendanceFragment_to_takeAttendanceFragment, bundle)
+                }
             }
-        }
-        viewModel.generateSessionDays()
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun setupStudentUI() {
@@ -108,14 +126,40 @@ class AttendanceFragment : Fragment() {
         updateDateTime()
         binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
         
-        viewModel.attendanceList.observe(viewLifecycleOwner) { list ->
-            binding.rvHistory.adapter = AttendanceAdapter(list)
-            if (list.isNotEmpty()) {
-                binding.tvStatus.text = "Absensi Berhasil"
-                binding.tvStatus.setTextColor(Color.parseColor("#2F9E44"))
-                saveAttendanceLocally(list)
+        // Listener Real-time untuk Siswa (History)
+        val user = userPreference.getUser()
+        val userId = user.email ?: ""
+        val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
+        database.child("absensi").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (_bindingStudent == null) return
+                
+                val list = mutableListOf<AbsensiItem>()
+                var alreadyAttendedToday = false
+                val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+
+                for (data in snapshot.children) {
+                    val item = data.getValue(AbsensiItem::class.java)
+                    if (item != null && item.muridId == userId) {
+                        list.add(item)
+                        if (item.tanggal?.startsWith(todayDate) == true) {
+                            alreadyAttendedToday = true
+                        }
+                    }
+                }
+                
+                val sortedList = list.sortedByDescending { it.tanggal }
+                binding.rvHistory.adapter = AttendanceAdapter(sortedList)
+                
+                if (alreadyAttendedToday) {
+                    binding.tvStatus.text = "Absensi Hari Ini Selesai"
+                    binding.tvStatus.setTextColor(Color.parseColor("#4C8DFF"))
+                    binding.btnAttendance.isEnabled = false
+                    binding.btnAttendance.alpha = 0.5f
+                }
             }
-        }
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
         binding.btnAttendance.setOnClickListener {
             if (isTimeValidForAttendance()) {
@@ -125,9 +169,6 @@ class AttendanceFragment : Fragment() {
                 Toast.makeText(requireContext(), "Absensi hanya dibuka jam 08:00 - 10:00", Toast.LENGTH_LONG).show()
             }
         }
-        
-        loadSavedAttendance()
-        viewModel.fetchAttendance()
     }
 
     private fun isTimeValidForAttendance(): Boolean {
@@ -191,13 +232,11 @@ class AttendanceFragment : Fragment() {
 
             if (status.isNotEmpty()) {
                 val user = userPreference.getUser()
-                // Gunakan email atau token sebagai ID unik jika ID tidak ada di UserModel
                 val userId = user.email ?: "unknown_id"
                 val teacherEmail = user.waliKelasName ?: ""
                 
                 viewModel.postAttendance(status, dialogBinding.etKeterangan.text.toString(), user.name ?: "Siswa", userId, teacherEmail)
                 
-                // Kirim notifikasi ke sistem
                 NotificationHelper.addNotification(
                     requireContext(),
                     "Absensi Berhasil",
@@ -209,20 +248,6 @@ class AttendanceFragment : Fragment() {
             }
         }
         dialog.show()
-    }
-
-    private fun saveAttendanceLocally(list: List<AbsensiItem>) {
-        val sharedPref = requireActivity().getSharedPreferences("AttendanceData", Context.MODE_PRIVATE)
-        sharedPref.edit().putString("attendance_list", gson.toJson(list)).apply()
-    }
-
-    private fun loadSavedAttendance() {
-        val sharedPref = requireActivity().getSharedPreferences("AttendanceData", Context.MODE_PRIVATE)
-        val json = sharedPref.getString("attendance_list", null)
-        if (json != null) {
-            val savedList: List<AbsensiItem> = gson.fromJson(json, object : TypeToken<List<AbsensiItem>>() {}.type)
-            _bindingStudent?.rvHistory?.adapter = AttendanceAdapter(savedList)
-        }
     }
 
     override fun onDestroyView() {

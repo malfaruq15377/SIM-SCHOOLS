@@ -14,6 +14,7 @@ class TugasAdapter(
     private var listTugas: List<TugasModel>,
     private val isGuru: Boolean = false,
     private val onTugasClicked: (TugasModel) -> Unit = {},
+    private val onEditClicked: (TugasModel) -> Unit = {},
     private val onDeleteClicked: (TugasModel) -> Unit = {}
 ) : RecyclerView.Adapter<TugasAdapter.TugasViewHolder>() {
 
@@ -36,7 +37,10 @@ class TugasAdapter(
 
             // Tampilan & Fitur khusus Guru
             if (isGuru) {
-                btnDelete.visibility = View.VISIBLE
+                containerActions.visibility = View.VISIBLE
+                btnEdit.setOnClickListener {
+                    onEditClicked(data)
+                }
                 btnDelete.setOnClickListener {
                     onDeleteClicked(data)
                 }
@@ -44,7 +48,7 @@ class TugasAdapter(
                 root.setCardBackgroundColor(Color.WHITE)
                 tvTitle.setTextColor(Color.parseColor("#4F46E5"))
             } else {
-                btnDelete.visibility = View.GONE
+                containerActions.visibility = View.GONE
             }
 
             // ACTION KLIK
