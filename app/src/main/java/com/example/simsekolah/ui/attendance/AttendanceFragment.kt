@@ -23,6 +23,7 @@ import com.example.simsekolah.data.remote.response.AbsensiItem
 import com.example.simsekolah.databinding.DialogAttendanceFormBinding
 import com.example.simsekolah.databinding.FragmentAttendanceBinding
 import com.example.simsekolah.databinding.FragmentTeacherAttendanceBinding
+import com.example.simsekolah.utils.NotificationHelper
 import com.example.simsekolah.utils.ViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -49,9 +50,12 @@ class AttendanceFragment : Fragment() {
     private val schoolLatitude = -6.175392
     private val schoolLongitude = 106.827153
     private val schoolRadiusInMeters = 100.0
-    private val entryHour = 9
-    private val entryMinute = 0
-    private val toleranceMinutes = 15
+    
+    // KONFIGURASI WAKTU ABSENSI
+    private val startHour = 8
+    private val startMinute = 0
+    private val lateHour = 10
+    private val lateMinute = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,17 +87,18 @@ class AttendanceFragment : Fragment() {
         val binding = _bindingTeacher!!
         binding.rvTeacherAttendance.layoutManager = LinearLayoutManager(requireContext())
         
-        val sessions = listOf(
-            AbsensiItem(id="1", muridId="0", tanggal="Monday, 20 April 2026", status="All students", keterangan="Regular class session"),
-            AbsensiItem(id="2", muridId="0", tanggal="Tuesday, 21 April 2026", status="All students", keterangan="Regular class session")
-        )
-        
-        binding.rvTeacherAttendance.adapter = TeacherAttendanceAdapter(sessions) { session ->
-            val bundle = Bundle().apply {
-                putString("session_date", session.tanggal)
+        viewModel.sessionDays.observe(viewLifecycleOwner) { days ->
+            val sessions = days.mapIndexed { index, date ->
+                AbsensiItem(id=index.toString(), muridId="0", tanggal=date, status="All students", keterangan="Regular class session")
             }
-            findNavController().navigate(R.id.action_attendanceFragment_to_takeAttendanceFragment, bundle)
+            binding.rvTeacherAttendance.adapter = TeacherAttendanceAdapter(sessions) { session ->
+                val bundle = Bundle().apply {
+                    putString("session_date", session.tanggal)
+                }
+                findNavController().navigate(R.id.action_attendanceFragment_to_takeAttendanceFragment, bundle)
+            }
         }
+        viewModel.generateSessionDays()
     }
 
     private fun setupStudentUI() {
@@ -106,19 +111,35 @@ class AttendanceFragment : Fragment() {
         viewModel.attendanceList.observe(viewLifecycleOwner) { list ->
             binding.rvHistory.adapter = AttendanceAdapter(list)
             if (list.isNotEmpty()) {
-                binding.tvStatus.text = "Checked In Successfully"
+                binding.tvStatus.text = "Absensi Berhasil"
                 binding.tvStatus.setTextColor(Color.parseColor("#2F9E44"))
                 saveAttendanceLocally(list)
             }
         }
 
         binding.btnAttendance.setOnClickListener {
-            if (checkLocationPermission()) checkLocationAndShowDialog()
-            else requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            if (isTimeValidForAttendance()) {
+                if (checkLocationPermission()) checkLocationAndShowDialog()
+                else requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            } else {
+                Toast.makeText(requireContext(), "Absensi hanya dibuka jam 08:00 - 10:00", Toast.LENGTH_LONG).show()
+            }
         }
         
         loadSavedAttendance()
         viewModel.fetchAttendance()
+    }
+
+    private fun isTimeValidForAttendance(): Boolean {
+        val now = Calendar.getInstance()
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = now.get(Calendar.MINUTE)
+        
+        val currentTimeInMinutes = currentHour * 60 + currentMinute
+        val startTimeInMinutes = startHour * 60 + startMinute
+        val lateTimeInMinutes = lateHour * 60 + lateMinute
+        
+        return currentTimeInMinutes in startTimeInMinutes..lateTimeInMinutes
     }
 
     private fun updateDateTime() {
@@ -162,28 +183,32 @@ class AttendanceFragment : Fragment() {
 
         dialogBinding.btnSubmit.setOnClickListener {
             val status = when (dialogBinding.rgStatus.checkedRadioButtonId) {
-                R.id.rbHadir -> checkLateStatus()
+                R.id.rbHadir -> "Present"
                 R.id.rbSakit -> "Sakit"
                 R.id.rbIzin -> "Izin"
                 else -> ""
             }
 
             if (status.isNotEmpty()) {
-                viewModel.postAttendance(status, dialogBinding.etKeterangan.text.toString(), userPreference.getUser().name ?: "Unknown")
+                val user = userPreference.getUser()
+                // Gunakan email atau token sebagai ID unik jika ID tidak ada di UserModel
+                val userId = user.email ?: "unknown_id"
+                val teacherEmail = user.waliKelasName ?: ""
+                
+                viewModel.postAttendance(status, dialogBinding.etKeterangan.text.toString(), user.name ?: "Siswa", userId, teacherEmail)
+                
+                // Kirim notifikasi ke sistem
+                NotificationHelper.addNotification(
+                    requireContext(),
+                    "Absensi Berhasil",
+                    "Anda telah mengisi absensi status: $status",
+                    "absensi"
+                )
+                
                 dialog.dismiss()
             }
         }
         dialog.show()
-    }
-
-    private fun checkLateStatus(): String {
-        val now = Calendar.getInstance()
-        val limit = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, entryHour)
-            set(Calendar.MINUTE, entryMinute)
-            add(Calendar.MINUTE, toleranceMinutes)
-        }
-        return if (now.after(limit)) "Telat" else "Hadir"
     }
 
     private fun saveAttendanceLocally(list: List<AbsensiItem>) {

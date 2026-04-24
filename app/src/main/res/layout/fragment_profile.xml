@@ -38,19 +38,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <!-- 3. TITLE "PROFILE" -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Profile"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/btnBack"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/btnBack" />
-
             <!-- 4. TOMBOL EDIT (SETTING) -->
             <ImageView
                 android:id="@+id/iv_setting"

@@ -1,20 +1,25 @@
 package com.example.simsekolah.ui.main
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.model.TugasModel
 import com.example.simsekolah.databinding.ActivitySubmitTugasBinding
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.firebase.database.FirebaseDatabase
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,14 +28,31 @@ class SubmitTugasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySubmitTugasBinding
     private var selectedFileUri: Uri? = null
+    private var photoUri: Uri? = null
+    
+    private val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
+
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            selectedFileUri = photoUri
+            binding.ivPreview.visibility = View.VISIBLE
+            binding.ivPreview.setImageURI(selectedFileUri)
+            binding.tvFileName.visibility = View.VISIBLE
+            binding.tvFileName.text = "Foto Tugas Berhasil Diambil"
+        }
+    }
 
     private val pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedFileUri = it
             binding.tvFileName.visibility = View.VISIBLE
-            binding.tvFileName.text = "Selected File: ${it.lastPathSegment}"
+            binding.tvFileName.text = "File Terpilih: ${it.lastPathSegment}"
             binding.ivPreview.visibility = View.GONE
         }
+    }
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) openCamera()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,64 +67,47 @@ class SubmitTugasActivity : AppCompatActivity() {
             intent.getParcelableExtra<TugasModel>("EXTRA_TUGAS")
         }
 
-
         tugasData?.let { tugas ->
             binding.tvSubmitTitle.text = tugas.title
             binding.tvSubmitDeadline.text = "Deadline: ${tugas.deadline} - ${tugas.time}"
             
-            if (!tugas.fileName.isNullOrEmpty()) {
-                binding.cardTeacherFile.visibility = View.VISIBLE
-                binding.tvTeacherFileName.text = tugas.fileName
-            }
-
             binding.btnSave.setOnClickListener {
                 if (selectedFileUri == null) {
-                    Toast.makeText(this, "Please select a file to submit", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Lampirkan file atau foto tugas", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 
-                markTaskAsCompleted(tugas.id)
-                Toast.makeText(this, "Tugas '${tugas.title}' Berhasil Dikirim!", Toast.LENGTH_LONG).show()
-                finish()
+                // UPDATE STATUS KE FIREBASE agar sinkron ke Home & HP lain
+                markTaskAsCompletedInFirebase(tugas.id)
             }
         }
 
         binding.btnBack.setOnClickListener { finish() }
         binding.btnCancel.setOnClickListener { finish() }
         binding.btnSelectFile.setOnClickListener { pickFileLauncher.launch("*/*") }
+        binding.ivPreview.setOnClickListener { 
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
     }
 
-    private fun markTaskAsCompleted(tugasId: String) {
-        val sharedPref = getSharedPreferences("TugasPrefs", Context.MODE_PRIVATE)
-        val userPref = UserPreference(this)
-        val currentUser = userPref.getUser()
-        val gson = Gson()
-        
-        val json = sharedPref.getString("list_tugas", null)
-        if (json != null) {
-            val type = object : TypeToken<MutableList<TugasModel>>() {}.type
-            val list: MutableList<TugasModel> = gson.fromJson(json, type)
-            
-            val tugas = list.find { it.id == tugasId }
-            tugas?.let {
-                // Update status untuk Murid (lokal)
-                it.isDone = true
-                
-                // Update status di list Guru (Submission)
-                val updatedSubmissions = it.submissions.map { sub ->
-                    if (sub.studentName == currentUser.name || sub.studentId == currentUser.email) {
-                        sub.copy(isCompleted = true, submittedAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date()))
-                    } else sub
-                }
-                
-                // Simpan kembali
-                val index = list.indexOfFirst { t -> t.id == tugasId }
-                if (index != -1) {
-                    list[index] = it.copy(submissions = updatedSubmissions, isDone = true)
-                }
+    private fun openCamera() {
+        val photoFile = File.createTempFile("IMG_", ".jpg", getExternalFilesDir(Environment.DIRECTORY_PICTURES))
+        photoUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", photoFile)
+    }
+
+    private fun markTaskAsCompletedInFirebase(tugasId: String) {
+        // Update status di Firebase agar HomeFragment otomatis mendeteksi dan menghilangkannya dari list
+        database.child("assignments").child(tugasId).child("isDone").setValue(true)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Tugas Berhasil Dikumpulkan!", Toast.LENGTH_SHORT).show()
+                finish()
             }
-            
-            sharedPref.edit().putString("list_tugas", gson.toJson(list)).apply()
-        }
+            .addOnFailureListener {
+                Toast.makeText(this, "Gagal mengupdate status", Toast.LENGTH_SHORT).show()
+            }
     }
 }

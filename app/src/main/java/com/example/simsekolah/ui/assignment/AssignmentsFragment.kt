@@ -36,7 +36,7 @@ class AssignmentsFragment : Fragment() {
     private lateinit var taskAdapter: TugasAdapter
     private val displayTugasList = mutableListOf<TugasModel>()
     
-    // Gunakan Realtime Database - Sesuaikan URL jika berbeda
+    private var assignmentListener: ValueEventListener? = null
     private val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
 
     override fun onCreateView(
@@ -70,15 +70,16 @@ class AssignmentsFragment : Fragment() {
     }
 
     private fun listenToRealtimeDatabase(role: String, email: String, kelasId: Int) {
-        database.child("assignments").addValueEventListener(object : ValueEventListener {
+        assignmentListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (_binding == null || !isAdded) return
+
                 val oldSize = displayTugasList.size
                 displayTugasList.clear()
 
                 for (data in snapshot.children) {
                     val tugas = data.getValue(TugasModel::class.java)
                     if (tugas != null) {
-                        // Filter Logic
                         if (role.equals("guru", ignoreCase = true)) {
                             if (tugas.teacherId == email) displayTugasList.add(tugas)
                         } else {
@@ -101,17 +102,21 @@ class AssignmentsFragment : Fragment() {
             override fun onCancelled(error: DatabaseError) {
                 Log.e("Firebase", "Error: ${error.message}")
             }
-        })
+        }
+        database.child("assignments").addValueEventListener(assignmentListener!!)
     }
 
     private fun showNotification(title: String, message: String) {
+        val ctx = context ?: return
         val channelId = "assignment_channel"
-        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, "Assignments", NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(channel)
         }
-        val notification = NotificationCompat.Builder(requireContext(), channelId)
+        
+        val notification = NotificationCompat.Builder(ctx, channelId)
             .setSmallIcon(R.drawable.ic_assignment)
             .setContentTitle(title)
             .setContentText(message)
@@ -172,17 +177,20 @@ class AssignmentsFragment : Fragment() {
 
             database.child("assignments").child(id).setValue(newTugas)
                 .addOnSuccessListener {
-                    dialog.dismiss()
-                    Toast.makeText(context, "Tugas Berhasil Terkirim ke Siswa!", Toast.LENGTH_SHORT).show()
+                    if (isAdded) {
+                        dialog.dismiss()
+                        Toast.makeText(context, "Tugas Berhasil Terkirim ke Siswa!", Toast.LENGTH_SHORT).show()
+                    }
                 }
         }
         
         dialogBinding.btnCancel.setOnClickListener { dialog.dismiss() }
         
         dialogBinding.etTugasDeadline.setOnClickListener {
+            val c = Calendar.getInstance()
             DatePickerDialog(requireContext(), { _, y, m, d ->
                 dialogBinding.etTugasDeadline.setText("$d-${m+1}-$y")
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
         }
         dialogBinding.etTugasTime.setOnClickListener {
             TimePickerDialog(requireContext(), { _, h, min ->
@@ -195,6 +203,9 @@ class AssignmentsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        assignmentListener?.let {
+            database.child("assignments").removeEventListener(it)
+        }
         _binding = null
     }
 }

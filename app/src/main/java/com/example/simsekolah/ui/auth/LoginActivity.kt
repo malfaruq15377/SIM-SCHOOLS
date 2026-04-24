@@ -1,6 +1,7 @@
 package com.example.simsekolah.ui.auth
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -16,7 +17,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var userPreference: UserPreference
 
-    // Pastikan import LoginViewModel mengarah ke ui.auth
     private val viewModel: LoginViewModel by viewModels {
         ViewModelFactory.getInstance(this)
     }
@@ -46,11 +46,9 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Ambil role dari RadioGroup
             val selectedRoleId = binding.rgRole.checkedRadioButtonId
             val role = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
 
-            // Panggil fungsi login dengan parameter yang sesuai
             viewModel.login(usernameInput, passwordInput, role, this)
         }
     }
@@ -69,12 +67,22 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }.onFailure { exception ->
                 Toast.makeText(this, exception.message ?: "Login gagal", Toast.LENGTH_SHORT).show()
+                // Jika gagal, pastikan tombol kembali normal
+                showLoading(false)
             }
         }
     }
 
     private fun showLoading(isLoading: Boolean) {
         binding.btnSignIn.isEnabled = !isLoading
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        if (isLoading) {
+            binding.btnSignIn.text = "" // Hilangkan teks saat loading
+            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black) // Ganti warna jadi abu
+            binding.progressBar.visibility = View.VISIBLE
+        } else {
+            binding.btnSignIn.text = getString(R.string.sign_in)
+            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black) // Kembalikan warna
+            binding.progressBar.visibility = View.GONE
+        }
     }
 }

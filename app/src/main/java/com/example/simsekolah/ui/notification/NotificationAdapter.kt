@@ -9,8 +9,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class NotificationAdapter(private var list: List<NotificationModel>) :
-    RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
+class NotificationAdapter(
+    private var list: MutableList<NotificationModel>,
+    private val onItemClick: (NotificationModel) -> Unit
+) : RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemNotificationBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -25,13 +27,24 @@ class NotificationAdapter(private var list: List<NotificationModel>) :
             tvNotifTitle.text = data.title
             tvNotifMessage.text = data.message
             tvNotifTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(data.timestamp))
+            
+            root.setOnClickListener { onItemClick(data) }
         }
     }
 
     override fun getItemCount(): Int = list.size
 
     fun updateList(newList: List<NotificationModel>) {
-        list = newList
+        list.clear()
+        list.addAll(newList)
         notifyDataSetChanged()
     }
+
+    fun removeItem(position: Int): NotificationModel {
+        val item = list.removeAt(position)
+        notifyItemRemoved(position)
+        return item
+    }
+    
+    fun getList(): List<NotificationModel> = list
 }
