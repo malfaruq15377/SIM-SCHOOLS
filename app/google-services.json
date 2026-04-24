@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "420308656242",
+    "project_id": "simsekolah-68fa2039",
+    "storage_bucket": "simsekolah-68fa2039.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420308656242:android:6d42d4f6884627692c22eb",
+        "android_client_info": {
+          "package_name": "com.example.simsekolah"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDDDT5-NkNOcW1lECMNLG4XIwnWQbQM80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,6 +14,7 @@
     <string name="or">──────── Sign Up with ────────</string>
     <string name="google">Continue with Google</string>
     <string name="facebook">Continue with Facebook</string>
+    <string name="register">Register</string>
 
     // menu bottom nav
     <string name="home">Home</string>
