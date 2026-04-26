@@ -57,11 +57,11 @@
                     android:id="@+id/et_email"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/bg_input_field"
                     android:hint="@string/email_or_username"
                     android:inputType="text"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginTop="10dp"/>
+                    android:paddingHorizontal="16dp" />
 
                 <EditText
                     android:id="@+id/et_password"

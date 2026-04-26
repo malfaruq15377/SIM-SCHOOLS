@@ -204,7 +204,7 @@ class HomeFragment : Fragment() {
     private fun setupMenu() {
         binding.menuAssignments.setOnClickListener { findNavController().navigate(R.id.assignmentsFragment) }
         binding.menuEvent.setOnClickListener { findNavController().navigate(R.id.eventFragment) }
-        binding.menuFees.setOnClickListener { findNavController().navigate(R.id.feesFragment) }
+        binding.menuInformation.setOnClickListener { findNavController().navigate(R.id.feesFragment) }
         binding.ivProfile.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
         binding.btnNotification.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_notificationsFragment) }
     }
