@@ -9,8 +9,12 @@ class SchoolRepository(
     private val sekolahDao: SekolahDao
 ) {
 
-    fun loginSiswa(email: String, pass: String) = flow {
-        emit(apiService.loginSiswa(email, pass))
+    fun login(username: String, pass: String) = flow {
+        emit(apiService.login(username, pass))
+    }
+
+    fun loginSiswa(username: String, pass: String) = flow {
+        emit(apiService.loginSiswa(username, pass))
     }
 
     fun getMapel() = flow { emit(apiService.getMapel()) }

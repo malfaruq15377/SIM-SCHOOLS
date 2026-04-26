@@ -33,22 +33,25 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupAction() {
         binding.btnSignIn.setOnClickListener {
-            val emailInput = binding.etEmail.text.toString().trim()
+            val identifierInput = binding.etEmail.text.toString().trim()
             val passwordInput = binding.etPassword.text.toString().trim()
 
-            if (emailInput.isEmpty()) {
-                binding.etEmail.error = "Email cannot be empty"
+            // 1. Validasi field kosong
+            if (identifierInput.isEmpty()) {
+                binding.etEmail.error = getString(R.string.email_or_username_empty_error)
+                Toast.makeText(this, getString(R.string.email_or_username_empty_error), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (passwordInput.isEmpty()) {
-                binding.etPassword.error = "Password cannot be empty"
+                binding.etPassword.error = getString(R.string.password_empty_error)
+                Toast.makeText(this, getString(R.string.password_empty_error), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val selectedRoleId = binding.rgRole.checkedRadioButtonId
             val role = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
 
-            viewModel.login(emailInput, passwordInput, role, this)
+            viewModel.login(identifierInput, passwordInput, role, this)
         }
     }
 
@@ -59,13 +62,33 @@ class LoginActivity : AppCompatActivity() {
 
         viewModel.loginResult.observe(this) { result ->
             result.onSuccess { user ->
-                userPreference.setUser(user)
-                Toast.makeText(this, "Login successful as ${user.role}", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                // Cek apakah role yang login sesuai dengan RadioButton yang dipilih
+                val selectedRoleId = binding.rgRole.checkedRadioButtonId
+                val selectedRole = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
+                
+                // Normalisasi role dari backend (kadang "aktif" di siswa, pastikan kita cek dengan benar)
+                val userRole = user.role?.lowercase() ?: ""
+                
+                if ((selectedRole == "guru" && userRole.contains("guru")) || 
+                    (selectedRole == "siswa" && (userRole.contains("siswa") || userRole.contains("aktif")))) {
+                    
+                    userPreference.setUser(user)
+                    Toast.makeText(this, getString(R.string.login_success, user.role), Toast.LENGTH_SHORT).show()
+                    
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // 2. Validasi RadioButton tidak sesuai dengan akun
+                    Toast.makeText(this, "Akun ini bukan terdaftar sebagai ${if (selectedRole == "guru") "Guru" else "Siswa"}", Toast.LENGTH_LONG).show()
+                    showLoading(false)
+                }
+                
             }.onFailure { exception ->
-                Toast.makeText(this, exception.message ?: "Login failed", Toast.LENGTH_SHORT).show()
+                // 3. Validasi Password/Username salah (dari backend)
+                val errorMessage = exception.message ?: getString(R.string.login_failed)
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
                 showLoading(false)
             }
         }
@@ -75,11 +98,9 @@ class LoginActivity : AppCompatActivity() {
         binding.btnSignIn.isEnabled = !isLoading
         if (isLoading) {
             binding.btnSignIn.text = ""
-            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black)
             binding.progressBar.visibility = View.VISIBLE
         } else {
             binding.btnSignIn.text = getString(R.string.sign_in)
-            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black)
             binding.progressBar.visibility = View.GONE
         }
     }

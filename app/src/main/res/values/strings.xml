@@ -6,6 +6,7 @@
     <string name="welcome">WELCOME TO SIM SCHOOLS</string>
     <string name="username">Username</string>
     <string name="email">Email</string>
+    <string name="email_or_username">Email / Username</string>
     <string name="password">Password</string>
     <string name="for_sign_in">Login For Sign In</string>
     <string name="sign_up">Sign Up</string>
@@ -19,6 +20,7 @@
     <string name="student">Student</string>
     <string name="teacher">Teacher</string>
     <string name="email_empty_error">Email cannot be empty</string>
+    <string name="email_or_username_empty_error">Email or Username cannot be empty</string>
     <string name="password_empty_error">Password cannot be empty</string>
     <string name="login_success">Login successful as %1$s</string>
     <string name="login_failed">Login failed</string>

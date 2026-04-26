@@ -21,84 +21,35 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
         val username = usernameInput.trim()
         val password = passwordInput.trim()
 
-        if (username.isEmpty()) {
-            _loginResult.value = Result.failure(Exception("Username tidak boleh kosong"))
-            return
-        }
-        if (password.isEmpty()) {
-            _loginResult.value = Result.failure(Exception("Password tidak boleh kosong"))
-            return
-        }
-
-        val tempPref = context.getSharedPreferences("TempPassword", Context.MODE_PRIVATE)
-        val savedCustomPassword = tempPref.getString("custom_password", null)
-
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                if (role.equals("guru", ignoreCase = true)) {
-                    repository.getGuru().collect { response ->
-                        if (response.success) {
-                            val guru = response.data.find { 
-                                (it.email?.equals(username, ignoreCase = true) == true || it.name.equals(username, ignoreCase = true)) && 
-                                (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
-                            }
-                            if (guru != null) {
-                                _loginResult.value = Result.success(UserModel(
-                                    name = guru.name, 
-                                    email = guru.email, 
-                                    role = "guru",
-                                    age = guru.kelasId ?: 0
-                                ))
-                            } else {
-                                _loginResult.value = Result.failure(Exception("Username atau password salah"))
-                            }
-                        } else {
-                            _loginResult.value = Result.failure(Exception(response.message))
-                        }
-                    }
+                // Gunakan fungsi login yang sesuai dengan role yang dipilih
+                val loginFlow = if (role.equals("guru", ignoreCase = true)) {
+                    repository.login(username, password)
                 } else {
-                    repository.getSiswa().collect { response ->
-                        if (response.success) {
-                            val murid = response.data.find { 
-                                (it.email?.equals(username, ignoreCase = true) == true || it.nama.equals(username, ignoreCase = true)) && 
-                                (it.password == password || password == "admin123" || (savedCustomPassword != null && password == savedCustomPassword))
-                            }
-                            if (murid != null) {
-                                // Ambil nama guru berdasarkan kelasId (SIMULASI: mencari guru dengan kelasId yang sama)
-                                var waliKelas: String? = "Belum Ada Wali Kelas"
-                                repository.getGuru().collect { guruResponse ->
-                                    if (guruResponse.success) {
-                                        val guru = guruResponse.data.find { it.kelasId == murid.kelasId }
-                                        waliKelas = guru?.name ?: "Guru Belum Terdaftar"
-                                        
-                                        _loginResult.value = Result.success(UserModel(
-                                            name = murid.nama, 
-                                            email = murid.email, 
-                                            role = "murid",
-                                            age = murid.kelasId ?: 0,
-                                            waliKelasName = waliKelas
-                                        ))
-                                    } else {
-                                        _loginResult.value = Result.success(UserModel(
-                                            name = murid.nama, 
-                                            email = murid.email, 
-                                            role = "murid",
-                                            age = murid.kelasId ?: 0,
-                                            waliKelasName = "Gagal memuat wali kelas"
-                                        ))
-                                    }
-                                }
-                            } else {
-                                _loginResult.value = Result.failure(Exception("Username atau password salah"))
-                            }
-                        } else {
-                            _loginResult.value = Result.failure(Exception(response.message))
-                        }
-                    }
+                    repository.loginSiswa(username, password)
+                }
+
+                loginFlow.collect { response ->
+                    val userData = response.data.user
+                    
+                    _loginResult.value = Result.success(UserModel(
+                        name = userData.name,
+                        email = userData.email,
+                        role = userData.status, 
+                        age = userData.kelasId ?: 0,
+                        token = response.data.token,
+                        noPhone = userData.phone,
+                        address = userData.address,
+                        dateOfBirth = userData.birthDate,
+                        // Gunakan field major untuk menyimpan NIS atau NIP
+                        major = userData.nis ?: userData.nip ?: "-",
+                        fatherName = userData.parentName
+                    ))
                 }
             } catch (e: Exception) {
-                _loginResult.value = Result.failure(e)
+                _loginResult.value = Result.failure(Exception(e.message ?: "Login gagal, periksa koneksi atau kredensial Anda"))
             } finally {
                 _isLoading.value = false
             }

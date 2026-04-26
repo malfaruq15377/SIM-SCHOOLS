@@ -3,23 +3,47 @@ package com.example.simsekolah.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class SiswaResponse(
-    @SerializedName("data")
-    val data: List<SiswaItem>,
     @SerializedName("success")
     val success: Boolean,
     @SerializedName("message")
-    val message: String
+    val message: String,
+    @SerializedName("data")
+    val data: List<SiswaItem>
 )
 
 data class SiswaItem(
     @SerializedName("id")
     val id: Int,
+    @SerializedName("uuid")
+    val uuid: String,
+    @SerializedName("nis")
+    val nis: String,
     @SerializedName("name")
-    val nama: String,
+    val name: String,
     @SerializedName("email")
-    val email: String? = null,
+    val email: String,
     @SerializedName("password")
-    val password: String? = null,
+    val password: String,
+    @SerializedName("phone")
+    val phone: String,
+    @SerializedName("address")
+    val address: String,
+    @SerializedName("gender")
+    val gender: String,
+    @SerializedName("birthDate")
+    val birthDate: String,
+    @SerializedName("parentName")
+    val parentName: String,
     @SerializedName("kelasId")
-    val kelasId: Int? = null
+    val kelasId: Int,
+    @SerializedName("status")
+    val status: String,
+    @SerializedName("isActive")
+    val isActive: Boolean,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String,
+    @SerializedName("deletedAt")
+    val deletedAt: String?
 )

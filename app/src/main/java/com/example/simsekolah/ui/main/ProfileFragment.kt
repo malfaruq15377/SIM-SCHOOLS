@@ -91,11 +91,9 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         binding.ivSetting.setOnClickListener(this)
         binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
         
-        // Klik foto profil atau icon camera untuk memunculkan pilihan
         binding.ivProfile.setOnClickListener { showProfileOptionsDialog() }
         binding.btnEditPhoto.setOnClickListener { showProfileOptionsDialog() }
         
-        // Klik area cover untuk langsung ganti background juga bisa
         binding.ivCover.setOnClickListener {
             isPickingCover = true
             openGallery()
@@ -124,23 +122,25 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private fun populateView(user: UserModel) {
         with(binding) {
-            val isGuru = user.role?.equals("guru", ignoreCase = true) == true
+            val isGuru = user.role?.lowercase()?.contains("guru") == true
             val roleName = if (isGuru) "TEACHER" else "STUDENT"
             
-            tvDisplayName.text = user.name ?: "No Name"
+            tvDisplayName.text = user.name ?: "-"
             tvDisplayRole.text = roleName
-            tvDisplayMajor.text = "Class ID: ${user.age}"
+            tvDisplayMajor.text = if (isGuru) "ID: ${user.age}" else "Class ID: ${user.age}"
 
-            tvStatusBadge.text = roleName
+            tvStatusBadge.text = user.role?.uppercase() ?: "AKTIF"
             tvClassBadge.text = user.age.toString()
-            tvMajorBadge.text = user.major ?: "-"
+            tvMajorBadge.text = user.major ?: "Umum"
 
-            tvNama.text = user.name ?: "No Name"
-            tvEmail.text = user.email ?: "No Email"
+            tvNama.text = user.name ?: "-"
+            tvEmail.text = user.email ?: "-"
+            tvPhone.text = user.noPhone ?: "-"
+            tvAddress.text = user.address ?: "-"
             
             if (!isGuru) {
                 layoutWaliKelas.visibility = View.VISIBLE
-                tvWaliKelas.text = user.waliKelasName ?: "Not Assigned"
+                tvWaliKelas.text = user.waliKelasName ?: "Belum Ada Wali Kelas"
             } else {
                 layoutWaliKelas.visibility = View.GONE
             }

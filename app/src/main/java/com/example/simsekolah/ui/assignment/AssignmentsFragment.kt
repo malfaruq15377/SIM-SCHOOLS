@@ -191,12 +191,12 @@ class AssignmentsFragment : Fragment() {
         }
 
         for (student in students) {
-            val studentKey = student.email?.replace(".", "_") ?: ""
+            val studentKey = student.email.replace(".", "_")
             val isSubmitted = taskSubmissions.hasChild(studentKey)
 
             submissionStatusList.add(SubmissionModel(
-                studentName = student.nama,
-                studentId = student.email ?: "",
+                studentName = student.name,
+                studentId = student.email,
                 isCompleted = isSubmitted
             ))
         }
