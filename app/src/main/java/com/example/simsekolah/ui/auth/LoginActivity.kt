@@ -1,7 +1,6 @@
 package com.example.simsekolah.ui.auth
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -34,22 +33,22 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupAction() {
         binding.btnSignIn.setOnClickListener {
-            val usernameInput = binding.etUsername.text.toString().trim()
+            val emailInput = binding.etEmail.text.toString().trim()
             val passwordInput = binding.etPassword.text.toString().trim()
 
-            if (usernameInput.isEmpty()) {
-                binding.etUsername.error = "Username tidak boleh kosong"
+            if (emailInput.isEmpty()) {
+                binding.etEmail.error = "Email cannot be empty"
                 return@setOnClickListener
             }
             if (passwordInput.isEmpty()) {
-                binding.etPassword.error = "Password tidak boleh kosong"
+                binding.etPassword.error = "Password cannot be empty"
                 return@setOnClickListener
             }
 
             val selectedRoleId = binding.rgRole.checkedRadioButtonId
             val role = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
 
-            viewModel.login(usernameInput, passwordInput, role, this)
+            viewModel.login(emailInput, passwordInput, role, this)
         }
     }
 
@@ -61,13 +60,12 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginResult.observe(this) { result ->
             result.onSuccess { user ->
                 userPreference.setUser(user)
-                Toast.makeText(this, "Login berhasil sebagai ${user.role}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Login successful as ${user.role}", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             }.onFailure { exception ->
-                Toast.makeText(this, exception.message ?: "Login gagal", Toast.LENGTH_SHORT).show()
-                // Jika gagal, pastikan tombol kembali normal
+                Toast.makeText(this, exception.message ?: "Login failed", Toast.LENGTH_SHORT).show()
                 showLoading(false)
             }
         }
@@ -76,12 +74,12 @@ class LoginActivity : AppCompatActivity() {
     private fun showLoading(isLoading: Boolean) {
         binding.btnSignIn.isEnabled = !isLoading
         if (isLoading) {
-            binding.btnSignIn.text = "" // Hilangkan teks saat loading
-            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black) // Ganti warna jadi abu
+            binding.btnSignIn.text = ""
+            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black)
             binding.progressBar.visibility = View.VISIBLE
         } else {
             binding.btnSignIn.text = getString(R.string.sign_in)
-            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black) // Kembalikan warna
+            binding.btnSignIn.setBackgroundResource(R.drawable.bg_button_black)
             binding.progressBar.visibility = View.GONE
         }
     }

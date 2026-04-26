@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SIM Sekolah</string>
 
-    // String di layout login dan register
+    <!-- Auth -->
     <string name="hello">HELLO!</string>
     <string name="welcome">WELCOME TO SIM SCHOOLS</string>
     <string name="username">Username</string>
@@ -15,20 +15,89 @@
     <string name="google">Continue with Google</string>
     <string name="facebook">Continue with Facebook</string>
     <string name="register">Register</string>
+    <string name="login_as">Login As:</string>
+    <string name="student">Student</string>
+    <string name="teacher">Teacher</string>
+    <string name="email_empty_error">Email cannot be empty</string>
+    <string name="password_empty_error">Password cannot be empty</string>
+    <string name="login_success">Login successful as %1$s</string>
+    <string name="login_failed">Login failed</string>
 
-    // menu bottom nav
+    <!-- Navigation -->
     <string name="home">Home</string>
     <string name="schedule">Schedule</string>
     <string name="attendance">Attendance</string>
     <string name="profile">Profile</string>
 
-    // Splash Screen
+    <!-- Splash Screen -->
     <string name="schools">SCHOOLS</string>
     <string name="mis">MANAGEMENT INFORMATION SYSTEM</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- Common Actions -->
     <string name="update">Update</string>
     <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="later">Later</string>
+    <string name="delete">Delete</string>
+
+    <!-- Schedule -->
+    <string name="edit_schedule">Edit Schedule</string>
+    <string name="save_schedule">Save Schedule</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="subject">Subject</string>
+    <string name="subject_name">Subject Name</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="teacher_name">Teacher Name</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+
+    <!-- Assignments -->
+    <string name="add_new_assignment">Add New Assignment</string>
+    <string name="fill_assignment_details">Fill in the assignment details below.</string>
+    <string name="assignment_title">Assignment Title</string>
+    <string name="deadline">Deadline</string>
+    <string name="time">Time</string>
+    <string name="short_description">Short Description</string>
+    <string name="upload_attachment">Upload Attachment (PDF/Image)</string>
+    <string name="save_assignment">Save Assignment</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_options">Profile Options</string>
+    <string name="view_profile_picture">View Profile Picture</string>
+    <string name="change_profile_picture">Change Profile Picture</string>
+    <string name="change_cover_background">Change Cover Background</string>
+    <string name="not_assigned">Not Assigned</string>
+    <string name="log_out">Log Out</string>
+    <string name="log_out_confirm">Are you sure you want to log out?</string>
+    
+    <!-- Notifications -->
+    <string name="enable_notifications">Enable Notifications?</string>
+    <string name="allow_notifications_msg">Allow the app to send notifications for tasks and school info?</string>
+    <string name="allow">Allow</string>
+
+    <!-- Event -->
+    <string name="school_events">School Events</string>
+    <string name="school_events_desc">Stay updated with school activities</string>
+    <string name="upcoming_events">Upcoming Events</string>
+    <string name="add_event">Add Event</string>
+    <string name="event_title">Event Title</string>
+    <string name="event_location">Location</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="save_event">Save Event</string>
+    <string name="delete_event_title">Delete Event</string>
+    <string name="delete_event_confirm">Are you sure you want to delete this event?</string>
+    <string name="event_deleted">Event deleted</string>
+    <string name="only_teacher_add_event">Only Teacher can add events</string>
+    <string name="fill_title_time">Please fill title and time</string>
+    <string name="new_event_notif_title">New Event!</string>
+    <string name="new_event_notif_msg">School has added a new event</string>
 
 </resources>

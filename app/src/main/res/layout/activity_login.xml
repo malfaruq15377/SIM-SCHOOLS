@@ -54,11 +54,12 @@
                 android:padding="32dp">
 
                 <EditText
-                    android:id="@+id/et_username"
+                    android:id="@+id/et_email"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:background="@drawable/bg_input_field"
-                    android:hint="@string/username"
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress"
                     android:paddingHorizontal="16dp"
                     android:layout_marginTop="10dp"/>
 
@@ -73,20 +74,10 @@
                     android:paddingHorizontal="16dp" />
 
                 <TextView
-                    android:id="@+id/tv_forgot_password"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/forgot_password"
-                    android:textColor="@color/md_theme_light_primary"
-                    android:textStyle="bold" />
-
-                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="Login Sebagai:"
+                    android:text="@string/login_as"
                     android:textColor="@color/md_theme_light_onSurface"
                     android:textStyle="bold" />
 
@@ -102,7 +93,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Murid"
+                        android:text="@string/student"
                         android:checked="true" />
 
                     <RadioButton
@@ -110,7 +101,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Guru" />
+                        android:text="@string/teacher" />
                 </RadioGroup>
 
                 <FrameLayout

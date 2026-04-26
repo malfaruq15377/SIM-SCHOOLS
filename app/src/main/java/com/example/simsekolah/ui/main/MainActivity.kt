@@ -1,11 +1,9 @@
 package com.example.simsekolah.ui.main
 
 import android.Manifest
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -41,23 +39,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // 1. Aktifkan Edge-to-Edge
         enableEdgeToEdge()
 
-        // 2. Inisialisasi Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 3. Tangani Insets (Kamera Atas & Navigasi Bawah)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            
-            // Beri padding atas agar tidak kena lubang kamera
-            binding.navHostFragment.updatePadding(top = insets.top)
-            
-            // Beri padding bawah agar konten terakhir bisa di-scroll melewati Bottom Nav
-            binding.navHostFragment.updatePadding(bottom = insets.bottom)
-            
+            binding.bottomNavContainer.updatePadding(bottom = insets.bottom)
             windowInsets
         }
 
@@ -68,7 +57,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Kontrol visibilitas Bottom Nav
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loginActivity, R.id.registerActivity, R.id.takeAttendanceFragment, R.id.notificationsFragment -> {
@@ -94,9 +82,9 @@ class MainActivity : AppCompatActivity() {
     private fun checkReminderPermission() {
         if (!userPref.isReminderAsked()) {
             AlertDialog.Builder(this)
-                .setTitle("Aktifkan Notifikasi?")
-                .setMessage("Izinkan aplikasi mengirim notifikasi tugas dan info sekolah?")
-                .setPositiveButton("Izinkan") { _, _ ->
+                .setTitle("Enable Notifications?")
+                .setMessage("Allow the app to send notifications for tasks and school info?")
+                .setPositiveButton("Allow") { _, _ ->
                     userPref.setReminderAsked(true)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -104,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                         scheduleDummyTaskNotification()
                     }
                 }
-                .setNegativeButton("Nanti", null)
+                .setNegativeButton("Later", null)
                 .show()
         }
     }

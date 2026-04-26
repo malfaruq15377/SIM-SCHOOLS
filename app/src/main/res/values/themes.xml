@@ -24,8 +24,9 @@
         <item name="colorOutline">@color/md_theme_light_outline</item>
 
         <!-- Status bar -->
-        <item name="android:statusBarColor">@color/md_theme_light_surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="CircleImage">
@@ -49,27 +50,4 @@
         <item name="android:height">0dp</item>
         <item name="android:width">0dp</item>
     </style>
-
-    <!-- <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
-    </style> -->
-
-    <!-- <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
-    </style> -->
-
-    <!-- <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
-    </style> -->
-
-    <!-- <style name="BottomNavText.Active" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
-    </style> -->
-
-    <!-- <style name="Base.Theme.SIMSekolah" parent="Theme.Material3.Light.NoActionBar">
-        -->
-        </resources>
+</resources>

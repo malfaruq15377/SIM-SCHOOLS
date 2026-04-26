@@ -24,7 +24,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="School Events"
+                android:text="@string/school_events"
                 android:textColor="#1A1C1E"
                 android:textSize="28sp"
                 android:textStyle="bold" />
@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Stay updated with school activities"
+                android:text="@string/school_events_desc"
                 android:textColor="#6C757D"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -141,7 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Upcoming Events"
+                    android:text="@string/upcoming_events"
                     android:textColor="#1A1C1E"
                     android:textSize="20sp"
                     android:textStyle="bold" />

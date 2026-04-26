@@ -59,7 +59,7 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="24dp">
 
-                <!-- Mapel 1 -->
+                <!-- Subject 1 -->
                 <include
                     android:id="@+id/layoutMapel1"
                     layout="@layout/layout_input_schedule_row"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Mapel 2 -->
+                <!-- Subject 2 -->
                 <include
                     android:id="@+id/layoutMapel2"
                     layout="@layout/layout_input_schedule_row"
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Mapel 3 -->
+                <!-- Subject 3 -->
                 <include
                     android:id="@+id/layoutMapel3"
                     layout="@layout/layout_input_schedule_row"
@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Mapel 4 -->
+                <!-- Subject 4 -->
                 <include
                     android:id="@+id/layoutMapel4"
                     layout="@layout/layout_input_schedule_row"
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Mapel 5 -->
+                <!-- Subject 5 -->
                 <include
                     android:id="@+id/layoutMapel5"
                     layout="@layout/layout_input_schedule_row"

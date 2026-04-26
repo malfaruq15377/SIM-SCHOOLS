@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_minus_circle"
-            app:title="Edit Schedule"
+            app:title="@string/edit_schedule"
             app:titleCentered="true"
             app:titleTextColor="#1E293B" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:fontFamily="@font/plus_jakarta_sans"
-                android:text="Monday"
+                android:text="@string/monday"
                 android:textColor="#64748B"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_margin="20dp"
-        android:text="Save Schedule"
+        android:text="@string/save_schedule"
         android:textAllCaps="false"
         android:textSize="16sp"
         android:textStyle="bold"

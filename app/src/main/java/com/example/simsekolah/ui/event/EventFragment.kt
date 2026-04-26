@@ -100,7 +100,10 @@ class EventFragment : Fragment() {
                 if (eventList.size > oldSize && oldSize != 0) {
                     val user = userPreference?.getUser()
                     if (user?.role?.equals("guru", ignoreCase = true) == false) {
-                        showNotification("Event Baru!", "Sekolah menambahkan event baru")
+                        showNotification(
+                            getString(R.string.new_event_notif_title),
+                            getString(R.string.new_event_notif_msg)
+                        )
                         updateCalendarUI()
                         eventAdapter?.updateList(eventList)
                     }
@@ -152,7 +155,7 @@ class EventFragment : Fragment() {
             if (isGuru) {
                 showAddEventDialog(selectedDate)
             } else {
-                Toast.makeText(requireContext(), "Hanya Guru yang dapat menambah event", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.only_teacher_add_event), Toast.LENGTH_SHORT).show()
             }
         }
         
@@ -175,16 +178,16 @@ class EventFragment : Fragment() {
 
     private fun showDeleteConfirmation(event: EventModel) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Event")
-            .setMessage("Are you sure you want to delete this event?")
-            .setPositiveButton("Yes") { _, _ ->
+            .setTitle(getString(R.string.delete_event_title))
+            .setMessage(getString(R.string.delete_event_confirm))
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 eventList.remove(event)
                 saveEvents()
                 eventAdapter?.updateList(eventList)
                 updateCalendarUI()
-                Toast.makeText(requireContext(), "Event deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.event_deleted), Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton(getString(R.string.no), null)
             .show()
     }
 
@@ -216,7 +219,7 @@ class EventFragment : Fragment() {
             val location = dialogBinding.etEventLocation.text.toString().trim()
 
             if (title.isEmpty() || timeStr.isEmpty()) {
-                Toast.makeText(requireContext(), "Fill title and time", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.fill_title_time), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

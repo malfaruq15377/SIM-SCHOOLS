@@ -103,17 +103,17 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     }
 
     private fun showProfileOptionsDialog() {
-        val options = arrayOf("Lihat Foto Profil", "Ganti Foto Profil", "Ganti Background Cover")
+        val options = arrayOf("View Profile Picture", "Change Profile Picture", "Change Cover Background")
         AlertDialog.Builder(requireContext())
-            .setTitle("Opsi Profil")
+            .setTitle("Profile Options")
             .setItems(options) { _, which ->
-                when (options[which]) {
-                    "Lihat Foto Profil" -> showImageDetail()
-                    "Ganti Foto Profil" -> {
+                when (which) {
+                    0 -> showImageDetail()
+                    1 -> {
                         isPickingCover = false
                         openGallery()
                     }
-                    "Ganti Background Cover" -> {
+                    2 -> {
                         isPickingCover = true
                         openGallery()
                     }
@@ -125,7 +125,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private fun populateView(user: UserModel) {
         with(binding) {
             val isGuru = user.role?.equals("guru", ignoreCase = true) == true
-            val roleName = if (isGuru) "GURU" else "MURID"
+            val roleName = if (isGuru) "TEACHER" else "STUDENT"
             
             tvDisplayName.text = user.name ?: "No Name"
             tvDisplayRole.text = roleName
@@ -140,7 +140,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             
             if (!isGuru) {
                 layoutWaliKelas.visibility = View.VISIBLE
-                tvWaliKelas.text = user.waliKelasName ?: "Belum Ditentukan"
+                tvWaliKelas.text = user.waliKelasName ?: "Not Assigned"
             } else {
                 layoutWaliKelas.visibility = View.GONE
             }
