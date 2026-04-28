@@ -31,29 +31,35 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> = _errorMessage
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
 
     private val _postResult = MutableLiveData<Boolean>()
     val postResult: LiveData<Boolean> = _postResult
 
     private val database = FirebaseDatabase.getInstance("https://simsekolah-68fa2039-default-rtdb.firebaseio.com/").reference
 
-    fun fetchAttendance() {
+    fun fetchAttendance(role: String, email: String) {
         _isLoading.value = true
-        // Gunakan Firebase untuk mengambil riwayat absensi agar sinkron antar HP
         database.child("absensi").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<AbsensiItem>()
                 for (data in snapshot.children) {
                     val item = data.getValue(AbsensiItem::class.java)
-                    if (item != null) list.add(item)
+                    if (item != null) {
+                        if (role.equals("guru", ignoreCase = true)) {
+                            if (item.keterangan?.contains(email) == true) list.add(item)
+                        } else {
+                            if (item.muridId == email) list.add(item)
+                        }
+                    }
                 }
                 _attendanceList.value = list.sortedByDescending { it.tanggal }
                 _isLoading.value = false
             }
             override fun onCancelled(error: DatabaseError) {
                 _isLoading.value = false
+                _errorMessage.value = error.message
             }
         })
     }
@@ -63,33 +69,46 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
         viewModelScope.launch {
             try {
                 repository.getSiswa().collect { response ->
-                    database.child("absensi").addValueEventListener(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val allAbsensi = mutableListOf<AbsensiItem>()
-                            for (data in snapshot.children) {
-                                val item = data.getValue(AbsensiItem::class.java)
-                                if (item != null) allAbsensi.add(item)
+                    if (response.success == true && response.data != null) {
+                        database.child("absensi").addValueEventListener(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val allAbsensi = mutableListOf<AbsensiItem>()
+                                for (data in snapshot.children) {
+                                    val item = data.getValue(AbsensiItem::class.java)
+                                    if (item != null) allAbsensi.add(item)
+                                }
+
+                                val students = response.data
+                                val filteredStudents = if (kelasId != null && kelasId != 0) {
+                                    students.filter { it.kelasId == kelasId }
+                                } else {
+                                    students
+                                }
+
+                                val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                                val updatedStudents = filteredStudents.map { student ->
+                                    val studentAbsen = allAbsensi.find { 
+                                        it.muridId == student.email && it.tanggal.startsWith(today) 
+                                    }
+                                    // Menggunakan status absen hari ini sebagai password sementara (untuk dibaca adapter)
+                                    student.copy(status = studentAbsen?.status ?: "Belum Absen")
+                                }
+                                
+                                _siswaList.value = updatedStudents
+                                _isLoading.value = false
                             }
-                            
-                            var students = if (response.success) response.data else createDummyStudents()
-                            if (kelasId != null && kelasId != 0) {
-                                students = students.filter { it.kelasId == kelasId }
+                            override fun onCancelled(error: DatabaseError) { 
+                                _isLoading.value = false
+                                _errorMessage.value = error.message
                             }
-                            
-                            // Map status dari firebase ke list siswa
-                            val updatedStudents = students.map { student ->
-                                val studentAbsen = allAbsensi.find { it.muridId == student.id.toString() }
-                                student.copy(password = studentAbsen?.status ?: "") // Gunakan field password sementara untuk status UI
-                            }
-                            
-                            _siswaList.value = updatedStudents
-                            _isLoading.value = false
-                        }
-                        override fun onCancelled(error: DatabaseError) { _isLoading.value = false }
-                    })
+                        })
+                    } else {
+                        _errorMessage.value = response.message ?: response.msg ?: "Gagal mengambil data siswa"
+                        _isLoading.value = false
+                    }
                 }
             } catch (e: Exception) {
-                _siswaList.value = createDummyStudents()
+                _errorMessage.value = e.message ?: "Terjadi kesalahan"
                 _isLoading.value = false
             }
         }
@@ -107,24 +126,17 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
         _sessionDays.value = days
     }
 
-    private fun createDummyStudents(): List<SiswaItem> {
-        val names = listOf("Ahmad Saputra", "Muhammad Alfaruq", "Ahmad Saugi", "Budi Doremi", "Siti Aisyah", "Rizky Ramadhan", "Dewi Lestari", "Fahri Hamzah", "Indah Permata", "Gilang Dirga")
-        return names.mapIndexed { index, name ->
-            SiswaItem(id = index + 100, nama = name, email = "${name.lowercase().replace(" ", ".")}@email.com", kelasId = 1)
-        }
-    }
-
-    fun postAttendance(status: String, keterangan: String, userName: String, userId: String, teacherEmail: String) {
+    fun postAttendance(status: String, keterangan: String, userName: String, userEmail: String, teacherEmail: String) {
         _isLoading.value = true
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val id = System.currentTimeMillis().toString()
         
         val newItem = AbsensiItem(
             id = id,
-            muridId = userId,
+            muridId = userEmail,
             tanggal = sdf.format(Date()),
             status = status,
-            keterangan = "$userName|$keterangan|$teacherEmail" // Selipkan email guru agar bisa difilter
+            keterangan = "$userName|$keterangan|$teacherEmail"
         )
 
         database.child("absensi").child(id).setValue(newItem)
@@ -135,6 +147,7 @@ class AttendanceViewModel(private val repository: SchoolRepository) : ViewModel(
             .addOnFailureListener {
                 _postResult.value = false
                 _isLoading.value = false
+                _errorMessage.value = it.message
             }
     }
 }

@@ -24,33 +24,33 @@ class LoginViewModel(private val repository: SchoolRepository) : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Gunakan fungsi login yang sesuai dengan role yang dipilih
-                val loginFlow = if (role.equals("guru", ignoreCase = true)) {
-                    repository.login(username, password)
-                } else {
-                    repository.loginSiswa(username, password)
-                }
+                repository.login(role, username, password).collect { response ->
+                    val userData = response.data?.user
+                    val token = response.data?.token
 
-                loginFlow.collect { response ->
-                    val userData = response.data.user
-                    
+                    if (userData == null || token == null) {
+                        _loginResult.value = Result.failure(Exception(response.msg ?: response.message ?: "Login gagal"))
+                        _isLoading.value = false
+                        return@collect
+                    }
+
                     _loginResult.value = Result.success(UserModel(
                         name = userData.name,
                         email = userData.email,
-                        role = userData.status, 
-                        age = userData.kelasId ?: 0,
-                        token = response.data.token,
+                        role = userData.status,
+                        token = token,
                         noPhone = userData.phone,
                         address = userData.address,
                         dateOfBirth = userData.birthDate,
-                        // Gunakan field major untuk menyimpan NIS atau NIP
-                        major = userData.nis ?: userData.nip ?: "-",
-                        fatherName = userData.parentName
+                        major = userData.nip ?: userData.nis ?: "",
+                        fatherName = userData.parentName ?: "",
+                        age = userData.kelasId ?: 0,
+                        id = userData.id
                     ))
+                    _isLoading.value = false
                 }
             } catch (e: Exception) {
-                _loginResult.value = Result.failure(Exception(e.message ?: "Login gagal, periksa koneksi atau kredensial Anda"))
-            } finally {
+                _loginResult.value = Result.failure(Exception("Login gagal: ${e.message}"))
                 _isLoading.value = false
             }
         }

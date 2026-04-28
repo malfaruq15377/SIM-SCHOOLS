@@ -30,11 +30,9 @@ class FeesFragment : Fragment() {
 
     private fun setupImageSlider() {
         val imageList = listOf(
-            R.drawable.banner1,
-            R.drawable.banner2,
-            R.drawable.banner3,
-            R.drawable.banner1, // Placeholder for 4th
-            R.drawable.banner2  // Placeholder for 5th
+            R.drawable.img,
+            R.drawable.img_1,
+            R.drawable.img_2
         )
 
         val adapter = FeesImageAdapter(imageList)

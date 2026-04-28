@@ -1,14 +1,11 @@
 package com.example.simsekolah.ui.main
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,9 +18,6 @@ import com.example.simsekolah.databinding.ActivitySubmitTugasBinding
 import com.google.firebase.database.FirebaseDatabase
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class SubmitTugasActivity : AppCompatActivity() {
 
@@ -132,7 +126,6 @@ class SubmitTugasActivity : AppCompatActivity() {
             "status" to "completed"
         )
 
-        // Simpan ke node submissions/{tugasId}/{studentKey}
         database.child("submissions").child(tugasId).child(studentKey).setValue(submissionData)
             .addOnSuccessListener {
                 Toast.makeText(this, "Tugas Berhasil Dikumpulkan!", Toast.LENGTH_SHORT).show()

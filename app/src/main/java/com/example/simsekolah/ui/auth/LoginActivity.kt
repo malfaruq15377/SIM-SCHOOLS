@@ -65,16 +65,16 @@ class LoginActivity : AppCompatActivity() {
                 // Cek apakah role yang login sesuai dengan RadioButton yang dipilih
                 val selectedRoleId = binding.rgRole.checkedRadioButtonId
                 val selectedRole = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
-                
+
                 // Normalisasi role dari backend (kadang "aktif" di siswa, pastikan kita cek dengan benar)
                 val userRole = user.role?.lowercase() ?: ""
-                
-                if ((selectedRole == "guru" && userRole.contains("guru")) || 
+
+                if ((selectedRole == "guru" && userRole.contains("guru")) ||
                     (selectedRole == "siswa" && (userRole.contains("siswa") || userRole.contains("aktif")))) {
-                    
+
                     userPreference.setUser(user)
                     Toast.makeText(this, getString(R.string.login_success, user.role), Toast.LENGTH_SHORT).show()
-                    
+
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -84,7 +84,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Akun ini bukan terdaftar sebagai ${if (selectedRole == "guru") "Guru" else "Siswa"}", Toast.LENGTH_LONG).show()
                     showLoading(false)
                 }
-                
+
             }.onFailure { exception ->
                 // 3. Validasi Password/Username salah (dari backend)
                 val errorMessage = exception.message ?: getString(R.string.login_failed)

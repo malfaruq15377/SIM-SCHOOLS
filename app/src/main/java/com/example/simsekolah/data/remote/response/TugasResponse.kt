@@ -2,15 +2,6 @@ package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class TugasResponse(
-    @SerializedName("success")
-    val success: Boolean,
-    @SerializedName("message")
-    val message: String,
-    @SerializedName("data")
-    val data: List<TugasItem>
-)
-
 data class TugasItem(
     @SerializedName("id")
     val id: Int,

@@ -4,9 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simsekolah.R
+import com.example.simsekolah.data.remote.response.SiswaItem
 import com.example.simsekolah.databinding.ItemStudentAttendanceBinding
 
-class StudentMarkingAdapter(private var studentList: List<StudentMarkingItem>) :
+class StudentMarkingAdapter(private var studentList: List<SiswaItem>) :
     RecyclerView.Adapter<StudentMarkingAdapter.ViewHolder>() {
 
     data class StudentMarkingItem(

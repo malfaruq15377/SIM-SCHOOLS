@@ -2,15 +2,6 @@ package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class GuruResponse(
-    @SerializedName("success")
-    val success: Boolean,
-    @SerializedName("message")
-    val message: String,
-    @SerializedName("data")
-    val data: List<GuruItem>
-)
-
 data class GuruItem(
     @SerializedName("id")
     val id: Int,
@@ -42,8 +33,6 @@ data class GuruItem(
     val createdAt: String,
     @SerializedName("updatedAt")
     val updatedAt: String,
-    
-    // Field tambahan yang mungkin dibutuhkan untuk relasi lokal (opsional)
     @SerializedName("kelasId")
     val kelasId: Int? = null
 )

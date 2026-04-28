@@ -55,13 +55,14 @@ class AssignmentsFragment : Fragment() {
         val userPref = UserPreference(requireContext())
         val user = userPref.getUser()
         val isGuru = user.role?.equals("guru", ignoreCase = true) == true
+        val isSiswa = user.role?.equals("siswa", ignoreCase = true) == true
 
         setupRecyclerViews(isGuru)
 
         if (isGuru) {
             binding.btnAdd.visibility = View.VISIBLE
             binding.btnAdd.setOnClickListener { showAddTugasDialog(null) }
-            viewModel.fetchSiswa()
+            viewModel.fetchGuru()
 
             viewModel.siswaList.observe(viewLifecycleOwner) {
                 val currentTugasId = binding.tvSelectedTugas.tag as? String
@@ -69,9 +70,13 @@ class AssignmentsFragment : Fragment() {
                     refreshSubmissionStatus(currentTugasId)
                 }
             }
-        } else {
+        } else{
             binding.btnAdd.visibility = View.GONE
             binding.layoutSubmissions.visibility = View.GONE
+        }
+
+        if (isSiswa) {
+            viewModel.fetchSiswa()
         }
 
         listenToRealtimeDatabase(user.role ?: "", user.email ?: "", user.age)
@@ -213,7 +218,6 @@ class AssignmentsFragment : Fragment() {
 
         val calendar = Calendar.getInstance()
 
-        // Date Picker logic
         val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
@@ -232,7 +236,6 @@ class AssignmentsFragment : Fragment() {
             ).show()
         }
 
-        // Time Picker logic
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)

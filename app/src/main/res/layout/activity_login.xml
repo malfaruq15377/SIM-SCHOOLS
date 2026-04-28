@@ -63,15 +63,25 @@
                     android:inputType="text"
                     android:paddingHorizontal="16dp" />
 
-                <EditText
-                    android:id="@+id/et_password"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_password"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_input_field"
-                    android:hint="@string/password"
-                    android:inputType="textPassword"
-                    android:paddingHorizontal="16dp" />
+                    app:hintEnabled="false"
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleTint="@color/md_theme_light_primary">
+
+                    <EditText
+                        android:id="@+id/et_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_input_field"
+                        android:hint="@string/password"
+                        android:inputType="textPassword"
+                        android:paddingHorizontal="16dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:layout_width="wrap_content"

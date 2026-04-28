@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.bottomNavContainer.updatePadding(bottom = insets.bottom)
+            binding.bottomNavigation.updatePadding(bottom = insets.bottom)
             windowInsets
         }
 
@@ -60,10 +60,10 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loginActivity, R.id.registerActivity, R.id.takeAttendanceFragment, R.id.notificationsFragment -> {
-                    binding.bottomNavContainer.visibility = View.GONE
+                    binding.bottomNavigation.visibility = View.GONE
                 }
                 else -> {
-                    binding.bottomNavContainer.visibility = View.VISIBLE
+                    binding.bottomNavigation.visibility = View.VISIBLE
                 }
             }
         }

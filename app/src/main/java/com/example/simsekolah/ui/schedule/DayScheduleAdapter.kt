@@ -18,7 +18,7 @@ class DayScheduleAdapter(
 
     data class DaySchedule(
         val dayName: String,
-        val items: List<JadwalItem>,
+        val items: List<JadwalItem>?,
         var isExpanded: Boolean = false
     )
 
@@ -32,32 +32,29 @@ class DayScheduleAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val dayData = daySchedules[position]
         
-        holder.binding.tvDayName.text = dayData.dayName
-        
-        // Show edit button only for Guru
-        holder.binding.btnEditDay.visibility = if (isGuru) View.VISIBLE else View.GONE
-        holder.binding.btnEditDay.setOnClickListener {
-            onEditClicked(dayData)
-        }
+        with(holder.binding) {
+            tvDayName.text = dayData.dayName
+            
+            // Show edit button only for Guru
+            btnEditDay.visibility = if (isGuru) View.VISIBLE else View.GONE
+            btnEditDay.setOnClickListener { onEditClicked(dayData) }
 
-        // Setup inner RecyclerView untuk baris jadwal
-        val rowAdapter = ScheduleRowAdapter(dayData.items)
-        holder.binding.rvDayItems.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.binding.rvDayItems.adapter = rowAdapter
+            // Setup inner RecyclerView untuk baris jadwal
+            val rowAdapter = ScheduleRowAdapter(dayData.items ?: emptyList())
+            rvDayItems.layoutManager = LinearLayoutManager(holder.itemView.context)
+            rvDayItems.adapter = rowAdapter
 
-        // Handle Status Expand/Collapse
-        updateExpansionState(holder, dayData.isExpanded)
-
-        holder.binding.layoutHeader.setOnClickListener {
-            dayData.isExpanded = !dayData.isExpanded
+            // Handle Expansion
             updateExpansionState(holder, dayData.isExpanded)
+            layoutHeader.setOnClickListener {
+                dayData.isExpanded = !dayData.isExpanded
+                updateExpansionState(holder, dayData.isExpanded)
+            }
         }
     }
 
     private fun updateExpansionState(holder: ViewHolder, isExpanded: Boolean) {
         holder.binding.layoutExpand.visibility = if (isExpanded) View.VISIBLE else View.GONE
-        
-        // Ganti icon berdasarkan status buka/tutup
         holder.binding.ivExpand.setImageResource(
             if (isExpanded) R.drawable.ic_minus_circle 
             else R.drawable.ic_plus_circle
@@ -85,14 +82,11 @@ class ScheduleRowAdapter(private val items: List<JadwalItem>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         
-        // Menampilkan Waktu
-        holder.binding.tvRowTime.text = "${item.jamMulai} - ${item.jamSelesai}"
-        
-        // Menampilkan Nama Mata Pelajaran
-        holder.binding.tvRowSubject.text = item.mapel?.name ?: item.mapelId
-        
-        // Menampilkan Nama Guru
-        holder.binding.tvRowTeacher.text = item.guru?.nama ?: "-"
+        with(holder.binding) {
+            tvRowTime.text = "${item.jamMulai} - ${item.jamSelesai}"
+            tvRowSubject.text = item.mapel?.name ?: item.mapelId
+            tvRowTeacher.text = item.guru?.nama ?: "-"
+        }
     }
 
     override fun getItemCount(): Int = items.size
