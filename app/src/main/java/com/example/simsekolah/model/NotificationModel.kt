@@ -1,15 +1,15 @@
 package com.example.simsekolah.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "notifications")
+@Parcelize
 data class NotificationModel(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val title: String,
-    val body: String,
-    val type: String,
-    val timestamp: Long = System.currentTimeMillis(),
-    val isRead: Boolean = false
-)
+    val id: String = "",
+    val title: String = "",
+    val message: String = "",
+    val type: String = "", // "Assignment" or "Event"
+    val referenceId: String = "", // assignmentId or eventId
+    val isRead: Boolean = false,
+    val timestamp: Long = System.currentTimeMillis()
+) : Parcelable

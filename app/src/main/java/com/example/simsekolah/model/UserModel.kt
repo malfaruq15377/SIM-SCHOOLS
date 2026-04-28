@@ -1,13 +1,18 @@
 package com.example.simsekolah.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class UserModel(
-    val id: Int,
-    val name: String,
-    val email: String,
-    val phone: String,
-    val address: String,
-    val role: String, // "siswa" or "guru"
-    val token: String,
-    val isLogin: Boolean = false,
-    val extraInfo: String? = null // For NIS/NIP or Class
-)
+    val uid: String = "",
+    val name: String = "",
+    val role: String = "", // "guru" or "siswa"
+    val email: String = "",
+    val photoUrl: String? = null,
+    val backgroundUrl: String? = null,
+    val kelasId: String? = null,
+    val namaKelas: String? = null,
+    val waliKelasId: String? = null, // uid guru
+    val waliKelasName: String? = null
+) : Parcelable

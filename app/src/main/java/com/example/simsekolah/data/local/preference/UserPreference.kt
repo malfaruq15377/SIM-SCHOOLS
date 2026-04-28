@@ -25,6 +25,9 @@ class UserPreference(private val context: Context) {
     private val TOKEN_KEY = stringPreferencesKey("token")
     private val IS_LOGIN_KEY = booleanPreferencesKey("is_login")
     private val EXTRA_KEY = stringPreferencesKey("extra")
+    private val GENDER_KEY = stringPreferencesKey("gender")
+    private val BIRTH_DATE_KEY = stringPreferencesKey("birth_date")
+    private val IS_WALI_KELAS_KEY = booleanPreferencesKey("is_wali_kelas")
 
     suspend fun saveSession(user: UserModel) {
         context.dataStore.edit { preferences ->
@@ -37,6 +40,9 @@ class UserPreference(private val context: Context) {
             preferences[TOKEN_KEY] = user.token
             preferences[IS_LOGIN_KEY] = true
             preferences[EXTRA_KEY] = user.extraInfo ?: ""
+            preferences[GENDER_KEY] = user.gender ?: ""
+            preferences[BIRTH_DATE_KEY] = user.birthDate ?: ""
+            preferences[IS_WALI_KELAS_KEY] = user.isWaliKelas
         }
     }
 
@@ -51,7 +57,10 @@ class UserPreference(private val context: Context) {
                 preferences[ROLE_KEY] ?: "",
                 preferences[TOKEN_KEY] ?: "",
                 preferences[IS_LOGIN_KEY] ?: false,
-                preferences[EXTRA_KEY]
+                preferences[EXTRA_KEY],
+                preferences[GENDER_KEY],
+                preferences[BIRTH_DATE_KEY],
+                preferences[IS_WALI_KELAS_KEY] ?: false
             )
         }
     }

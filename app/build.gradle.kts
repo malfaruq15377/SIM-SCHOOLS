@@ -49,9 +49,15 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.datastore.preferences)
+
     // FIREBASE
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
-    implementation(libs.firebase.database) // Ini yang tadi kurang
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.database)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

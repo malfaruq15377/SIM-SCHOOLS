@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.simsekolah.R
 import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.data.remote.retrofit.ApiConfig
 import com.example.simsekolah.databinding.ActivityLoginBinding
@@ -73,7 +72,10 @@ class LoginActivity : AppCompatActivity() {
                         address = response.data.user.address,
                         role = "guru",
                         token = response.data.token,
-                        extraInfo = response.data.user.nip
+                        extraInfo = response.data.user.nip,
+                        gender = response.data.user.gender,
+                        birthDate = response.data.user.birthDate,
+                        isWaliKelas = response.data.user.isWaliKelas
                     )
                     userPreference.saveSession(user)
                     navigateToHome()
@@ -87,7 +89,10 @@ class LoginActivity : AppCompatActivity() {
                         address = response.data.user.address,
                         role = "siswa",
                         token = response.data.token,
-                        extraInfo = response.data.user.nis
+                        extraInfo = response.data.user.nis,
+                        gender = response.data.user.gender,
+                        birthDate = response.data.user.birthDate,
+                        isWaliKelas = false // Siswa bukan wali kelas
                     )
                     userPreference.saveSession(user)
                     navigateToHome()
@@ -104,9 +109,9 @@ class LoginActivity : AppCompatActivity() {
                     "Gagal memproses data error dari server"
                 }
                 showToast(message)
-                showLoading(false)
             } catch (e: Exception) {
                 showToast("Koneksi gagal: ${e.localizedMessage}")
+            } finally {
                 showLoading(false)
             }
         }
@@ -120,15 +125,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        if (isLoading) {
-            binding.btnSignIn.text = ""
-            binding.btnSignIn.isEnabled = false
-            binding.progressBar.visibility = View.VISIBLE
-        } else {
-            binding.btnSignIn.text = getString(R.string.sign_in)
-            binding.btnSignIn.isEnabled = true
-            binding.progressBar.visibility = View.GONE
-        }
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.btnSignIn.isEnabled = !isLoading
     }
 
     private fun showToast(message: String) {

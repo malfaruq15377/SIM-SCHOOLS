@@ -40,18 +40,39 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val user = userPreference.getSession().first()
             binding.apply {
+                // Nama di bagian atas
                 tvDisplayName.text = user.name
-                tvDisplayRole.text = if (user.role == "guru") "Guru Pengajar" else "Siswa"
-                tvDisplayMajor.text = if (user.role == "guru") "NIP: ${user.extraInfo}" else "NIS: ${user.extraInfo}"
                 
+                // Logika Role: Guru Pengajar atau Wali Kelas
+                if (user.role == "guru") {
+                    tvDisplayRole.text = if (user.isWaliKelas) "Wali Kelas" else "Guru Pengajar"
+                    tvDisplayMajor.text = "NIP: ${user.extraInfo}"
+                    tvClassBadge.text = if (user.isWaliKelas) "Wali" else "Guru"
+                    
+                    // Tampilkan label Wali Kelas di card info jika true
+                    if (user.isWaliKelas) {
+                        layoutWaliKelas.visibility = View.VISIBLE
+                        tvWaliKelas.text = "Ya (Wali Kelas)"
+                    } else {
+                        layoutWaliKelas.visibility = View.GONE
+                    }
+                } else {
+                    tvDisplayRole.text = "Siswa"
+                    tvDisplayMajor.text = "NIS: ${user.extraInfo}"
+                    tvClassBadge.text = "Siswa" // Bisa diganti logic kelas jika ada datanya
+                    layoutWaliKelas.visibility = View.GONE
+                }
+                
+                // Isi bagian Identitas (Badge kanan)
+                tvMajorBadge.text = user.gender ?: "-"
+                
+                // Isi Card Informasi Detail
                 tvNama.text = user.name
                 tvEmail.text = user.email
                 tvPhone.text = user.phone
                 tvAddress.text = user.address
                 
                 tvStatusBadge.text = "Aktif"
-                // Misal kita set kelas badge dari extraInfo atau default
-                tvClassBadge.text = if (user.role == "siswa") "XII-A" else "Guru" 
             }
         }
     }
@@ -68,7 +89,7 @@ class ProfileFragment : Fragment() {
             }
             
             btnUpdate.setOnClickListener {
-                // Logout logic for testing or update profile
+                // Temporary logout for testing
                 viewLifecycleOwner.lifecycleScope.launch {
                     userPreference.logout()
                     val intent = Intent(requireContext(), LoginActivity::class.java)
