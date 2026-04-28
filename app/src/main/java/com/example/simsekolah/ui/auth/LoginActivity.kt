@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.simsekolah.R
 import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.data.remote.retrofit.ApiConfig
 import com.example.simsekolah.databinding.ActivityLoginBinding
@@ -94,7 +95,6 @@ class LoginActivity : AppCompatActivity() {
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 val message = try {
-                    // Validasi apakah errorBody adalah JSON
                     if (errorBody != null && errorBody.startsWith("{")) {
                         JSONObject(errorBody).getString("msg")
                     } else {
@@ -104,9 +104,9 @@ class LoginActivity : AppCompatActivity() {
                     "Gagal memproses data error dari server"
                 }
                 showToast(message)
+                showLoading(false)
             } catch (e: Exception) {
                 showToast("Koneksi gagal: ${e.localizedMessage}")
-            } finally {
                 showLoading(false)
             }
         }
@@ -120,8 +120,15 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.btnSignIn.isEnabled = !isLoading
+        if (isLoading) {
+            binding.btnSignIn.text = ""
+            binding.btnSignIn.isEnabled = false
+            binding.progressBar.visibility = View.VISIBLE
+        } else {
+            binding.btnSignIn.text = getString(R.string.sign_in)
+            binding.btnSignIn.isEnabled = true
+            binding.progressBar.visibility = View.GONE
+        }
     }
 
     private fun showToast(message: String) {

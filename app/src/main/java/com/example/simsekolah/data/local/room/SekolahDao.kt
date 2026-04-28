@@ -1,5 +1,23 @@
 package com.example.simsekolah.data.local.room
 
-interface SekolahDao{
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.example.simsekolah.model.NotificationModel
+import kotlinx.coroutines.flow.Flow
 
+@Dao
+interface SekolahDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotification(notification: NotificationModel)
+
+    @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
+    fun getAllNotifications(): Flow<List<NotificationModel>>
+
+    @Query("UPDATE notifications SET isRead = 1 WHERE id = :notificationId")
+    suspend fun markAsRead(notificationId: Int)
+
+    @Query("DELETE FROM notifications")
+    suspend fun clearNotifications()
 }
