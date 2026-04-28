@@ -3,33 +3,40 @@ package com.example.simsekolah.ui.auth
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.example.simsekolah.R
 import com.example.simsekolah.data.local.preference.UserPreference
+import com.example.simsekolah.ui.main.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
-        val userPreference = UserPreference(this)
-        val user = userPreference.getUser()
+        val userPreference = UserPreference.getInstance(this)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            // Cek apakah user sudah login atau belum
-            // Jika role kosong, artinya belum login, arahkan ke LoginActivity
-            if (user.role.isNullOrEmpty()) {
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+        lifecycleScope.launch {
+            // Beri delay 2 detik supaya layout splash screen terlihat
+            delay(2000)
+            
+            // Cek apakah user sudah login
+            val user = userPreference.getSession().first()
+            
+            if (user.isLogin) {
+                // Jika sudah login, ke MainActivity
+                startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
             } else {
-                // Jika sudah ada data user (sudah login), langsung ke MainActivity
-                val intent = Intent(this, com.example.simsekolah.ui.main.MainActivity::class.java)
-                startActivity(intent)
+                // Jika belum, ke LoginActivity
+                startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
             }
             finish()
-        }, 2000)
+        }
     }
 }

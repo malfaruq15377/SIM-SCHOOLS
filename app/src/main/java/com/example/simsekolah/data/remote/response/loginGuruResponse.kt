@@ -2,18 +2,23 @@ package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class GuruResponse(
+data class LoginGuruResponse(
+    @field:SerializedName("msg")
+    val msg: String,
+
     @field:SerializedName("data")
-    val data: List<GuruItem>,
-
-    @field:SerializedName("success")
-    val success: Boolean,
-
-    @field:SerializedName("message")
-    val message: String
+    val data: LoginGuruData
 )
 
-data class GuruItem(
+data class LoginGuruData(
+    @field:SerializedName("user")
+    val user: GuruUser,
+
+    @field:SerializedName("token")
+    val token: String
+)
+
+data class GuruUser(
     @field:SerializedName("address")
     val address: String,
 

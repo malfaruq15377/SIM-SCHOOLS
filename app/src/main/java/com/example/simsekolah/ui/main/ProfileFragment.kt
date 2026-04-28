@@ -1,255 +1,80 @@
 package com.example.simsekolah.ui.main
 
-import android.app.Dialog
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.simsekolah.R
-import com.example.simsekolah.databinding.FragmentProfileBinding
-import com.example.simsekolah.ui.form.FormUserActivity
-import com.example.simsekolah.model.UserModel
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.simsekolah.data.local.preference.UserPreference
+import com.example.simsekolah.databinding.FragmentProfileBinding
+import com.example.simsekolah.ui.auth.LoginActivity
 import com.example.simsekolah.ui.settings.SettingActivity
-import java.io.File
-import java.io.FileOutputStream
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class ProfileFragment : Fragment(), View.OnClickListener {
-
+class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-    private lateinit var userModel: UserModel
-    private lateinit var mUserPreference: UserPreference
-    
-    private var isPickingCover = false
+    private lateinit var userPreference: UserPreference
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            val fileName = if (isPickingCover) "cover_picture.jpg" else "profile_picture.jpg"
-            val savedPath = saveImageToInternalStorage(it, fileName)
-            if (savedPath != null) {
-                if (isPickingCover) {
-                    saveCoverPath(savedPath)
-                    loadCoverImage()
-                } else {
-                    saveProfilePath(savedPath)
-                    loadProfileImage()
-                }
-            }
-        }
-    }
-
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == FormUserActivity.Companion.RESULT_CODE) {
-            val dataIntent = result.data
-            if (dataIntent != null) {
-                val receivedUser = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    dataIntent.getParcelableExtra(FormUserActivity.Companion.EXTRA_RESULT, UserModel::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    dataIntent.getParcelableExtra<UserModel>(FormUserActivity.Companion.EXTRA_RESULT)
-                }
-
-                receivedUser?.let {
-                    mUserPreference.setUser(it)
-                    userModel = it
-                    populateView(it)
-                }
-            }
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        userPreference = UserPreference.getInstance(requireContext())
 
-        mUserPreference = UserPreference(requireContext())
-        userModel = mUserPreference.getUser()
-        populateView(userModel)
-        loadProfileImage()
-        loadCoverImage()
-
-        binding.btnUpdate.setOnClickListener(this)
-        binding.ivSetting.setOnClickListener(this)
-        binding.btnBack.setOnClickListener { requireActivity().onBackPressed() }
-        
-        binding.ivProfile.setOnClickListener { showProfileOptionsDialog() }
-        binding.btnEditPhoto.setOnClickListener { showProfileOptionsDialog() }
-        
-        binding.ivCover.setOnClickListener {
-            isPickingCover = true
-            openGallery()
-        }
+        setupUserData()
+        setupAction()
     }
 
-    private fun showProfileOptionsDialog() {
-        val options = arrayOf("View Profile Picture", "Change Profile Picture", "Change Cover Background")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Profile Options")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> showImageDetail()
-                    1 -> {
-                        isPickingCover = false
-                        openGallery()
-                    }
-                    2 -> {
-                        isPickingCover = true
-                        openGallery()
-                    }
-                }
-            }
-            .show()
-    }
-
-    private fun populateView(user: UserModel) {
-        with(binding) {
-            val isGuru = user.role?.lowercase()?.contains("guru") == true
-            val roleName = if (isGuru) "TEACHER" else "STUDENT"
-            
-            tvDisplayName.text = user.name ?: "-"
-            tvDisplayRole.text = roleName
-            tvDisplayMajor.text = if (isGuru) "ID: ${user.age}" else "Class ID: ${user.age}"
-
-            tvStatusBadge.text = user.role?.uppercase() ?: "AKTIF"
-            tvClassBadge.text = user.age.toString()
-            tvMajorBadge.text = user.major ?: "Umum"
-
-            tvNama.text = user.name ?: "-"
-            tvEmail.text = user.email ?: "-"
-            tvPhone.text = user.noPhone ?: "-"
-            tvAddress.text = user.address ?: "-"
-            
-            if (!isGuru) {
-                layoutWaliKelas.visibility = View.VISIBLE
-                tvWaliKelas.text = user.waliKelasName ?: "Belum Ada Wali Kelas"
-            } else {
-                layoutWaliKelas.visibility = View.GONE
+    private fun setupUserData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val user = userPreference.getSession().first()
+            binding.apply {
+                tvDisplayName.text = user.name
+                tvDisplayRole.text = if (user.role == "guru") "Guru Pengajar" else "Siswa"
+                tvDisplayMajor.text = if (user.role == "guru") "NIP: ${user.extraInfo}" else "NIS: ${user.extraInfo}"
+                
+                tvNama.text = user.name
+                tvEmail.text = user.email
+                tvPhone.text = user.phone
+                tvAddress.text = user.address
+                
+                tvStatusBadge.text = "Aktif"
+                // Misal kita set kelas badge dari extraInfo atau default
+                tvClassBadge.text = if (user.role == "siswa") "XII-A" else "Guru" 
             }
         }
     }
 
-    private fun loadProfileImage() {
-        val savedPath = getProfilePath()
-        if (savedPath != null) {
-            val file = File(savedPath)
-            if (file.exists()) {
-                Glide.with(this)
-                    .load(file)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .placeholder(R.drawable.ic_profile)
-                    .circleCrop()
-                    .into(binding.ivProfile)
+    private fun setupAction() {
+        binding.apply {
+            btnBack.setOnClickListener {
+                findNavController().navigateUp()
             }
-        }
-    }
 
-    private fun loadCoverImage() {
-        val savedPath = getCoverPath()
-        if (savedPath != null) {
-            val file = File(savedPath)
-            if (file.exists()) {
-                Glide.with(this)
-                    .load(file)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .placeholder(R.drawable.bg_badge_purple)
-                    .centerCrop()
-                    .into(binding.ivCover)
-            }
-        }
-    }
-
-    private fun showImageDetail() {
-        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_image_detail)
-
-        val imageView = dialog.findViewById<ImageView>(R.id.iv_detail)
-        val btnClose = dialog.findViewById<ImageButton>(R.id.btn_close)
-
-        val savedPath = getProfilePath()
-        if (savedPath != null) {
-            val file = File(savedPath)
-            if (file.exists()) {
-                Glide.with(this).load(file).into(imageView)
-            }
-        } else {
-            imageView.setImageResource(R.drawable.ic_profile)
-        }
-
-        btnClose.setOnClickListener { dialog.dismiss() }
-        dialog.show()
-    }
-
-    private fun saveProfilePath(imagePath: String) {
-        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        sharedPref.edit().putString("profile_path", imagePath).apply()
-    }
-
-    private fun getProfilePath(): String? {
-        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        return sharedPref.getString("profile_path", null)
-    }
-
-    private fun saveCoverPath(imagePath: String) {
-        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        sharedPref.edit().putString("cover_path", imagePath).apply()
-    }
-
-    private fun getCoverPath(): String? {
-        val sharedPref = requireActivity().getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        return sharedPref.getString("cover_path", null)
-    }
-
-    private fun saveImageToInternalStorage(uri: Uri, fileName: String): String? {
-        return try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val file = File(requireContext().filesDir, fileName)
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-            file.absolutePath
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun openGallery() {
-        pickImageLauncher.launch("image/*")
-    }
-
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.btn_update -> {
-                val intent = Intent(requireContext(), FormUserActivity::class.java)
-                intent.putExtra(FormUserActivity.Companion.EXTRA_TYPE_FORM, FormUserActivity.Companion.TYPE_EDIT)
-                intent.putExtra(FormUserActivity.Companion.EXTRA_RESULT, userModel)
-                resultLauncher.launch(intent)
-            }
-            R.id.iv_setting -> {
+            ivSetting.setOnClickListener {
                 val intent = Intent(requireContext(), SettingActivity::class.java)
                 startActivity(intent)
+            }
+            
+            btnUpdate.setOnClickListener {
+                // Logout logic for testing or update profile
+                viewLifecycleOwner.lifecycleScope.launch {
+                    userPreference.logout()
+                    val intent = Intent(requireContext(), LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
             }
         }
     }

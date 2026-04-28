@@ -1,76 +1,77 @@
 package com.example.simsekolah.data.local.preference
 
 import android.content.Context
-import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.simsekolah.model.UserModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class UserPreference(context: Context) {
-    companion object {
-        private const val PREFS_NAME = "user_pref"
-        private const val NAME = "name"
-        private const val EMAIL = "email"
-        private const val AGE = "age"
-        private const val NO_PHONE = "phone"
-        private const val ADDRESS = "address"
-        private const val MAJOR = "major"
-        private const val FATHER_NAME = "father_name"
-        private const val MOTHER_NAME = "mother_name"
-        private const val WEIGHT = "weight"
-        private const val HEIGHT = "height"
-        private const val DATE_OF_BIRTH = "date_of_birth"
-        private const val ROLE = "role"
-        private const val TOKEN = "token"
-        private const val WALI_KELAS_NAME = "wali_kelas_name"
-        private const val IS_REMINDER_ASKED = "is_reminder_asked"
-    }
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "session")
 
-    private val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+class UserPreference(private val context: Context) {
 
-    fun setUser(value: UserModel) {
-        preferences.edit {
-            putString(NAME, value.name)
-            putString(EMAIL, value.email)
-            putInt(AGE, value.age)
-            putString(NO_PHONE, value.noPhone)
-            putString(ADDRESS, value.address)
-            putString(MAJOR, value.major)
-            putString(FATHER_NAME, value.fatherName)
-            putString(MOTHER_NAME, value.motherName)
-            putFloat(WEIGHT, value.weight.toFloat())
-            putFloat(HEIGHT, value.height.toFloat())
-            putString(DATE_OF_BIRTH, value.dateOfBirth)
-            putString(ROLE, value.role)
-            putString(TOKEN, value.token)
-            putString(WALI_KELAS_NAME, value.waliKelasName)
+    private val ID_KEY = intPreferencesKey("id")
+    private val NAME_KEY = stringPreferencesKey("name")
+    private val EMAIL_KEY = stringPreferencesKey("email")
+    private val PHONE_KEY = stringPreferencesKey("phone")
+    private val ADDRESS_KEY = stringPreferencesKey("address")
+    private val ROLE_KEY = stringPreferencesKey("role")
+    private val TOKEN_KEY = stringPreferencesKey("token")
+    private val IS_LOGIN_KEY = booleanPreferencesKey("is_login")
+    private val EXTRA_KEY = stringPreferencesKey("extra")
+
+    suspend fun saveSession(user: UserModel) {
+        context.dataStore.edit { preferences ->
+            preferences[ID_KEY] = user.id
+            preferences[NAME_KEY] = user.name
+            preferences[EMAIL_KEY] = user.email
+            preferences[PHONE_KEY] = user.phone
+            preferences[ADDRESS_KEY] = user.address
+            preferences[ROLE_KEY] = user.role
+            preferences[TOKEN_KEY] = user.token
+            preferences[IS_LOGIN_KEY] = true
+            preferences[EXTRA_KEY] = user.extraInfo ?: ""
         }
     }
 
-    fun getUser(): UserModel {
-        return UserModel(
-            name = preferences.getString(NAME, ""),
-            email = preferences.getString(EMAIL, ""),
-            age = preferences.getInt(AGE, 0),
-            noPhone = preferences.getString(NO_PHONE, ""),
-            address = preferences.getString(ADDRESS, ""),
-            major = preferences.getString(MAJOR, ""),
-            fatherName = preferences.getString(FATHER_NAME, ""),
-            motherName = preferences.getString(MOTHER_NAME, ""),
-            weight = preferences.getFloat(WEIGHT, 0f).toDouble(),
-            height = preferences.getFloat(HEIGHT, 0f).toDouble(),
-            dateOfBirth = preferences.getString(DATE_OF_BIRTH, ""),
-            role = preferences.getString(ROLE, ""),
-            token = preferences.getString(TOKEN, ""),
-            waliKelasName = preferences.getString(WALI_KELAS_NAME, "")
-        )
+    fun getSession(): Flow<UserModel> {
+        return context.dataStore.data.map { preferences ->
+            UserModel(
+                preferences[ID_KEY] ?: 0,
+                preferences[NAME_KEY] ?: "",
+                preferences[EMAIL_KEY] ?: "",
+                preferences[PHONE_KEY] ?: "",
+                preferences[ADDRESS_KEY] ?: "",
+                preferences[ROLE_KEY] ?: "",
+                preferences[TOKEN_KEY] ?: "",
+                preferences[IS_LOGIN_KEY] ?: false,
+                preferences[EXTRA_KEY]
+            )
+        }
     }
 
-    fun isReminderAsked(): Boolean = preferences.getBoolean(IS_REMINDER_ASKED, false)
-
-    fun setReminderAsked(asked: Boolean) {
-        preferences.edit { putBoolean(IS_REMINDER_ASKED, asked) }
+    suspend fun logout() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
     }
 
-    fun logout() {
-        preferences.edit { clear() }
+    companion object {
+        @Volatile
+        private var INSTANCE: UserPreference? = null
+
+        fun getInstance(context: Context): UserPreference {
+            return INSTANCE ?: synchronized(this) {
+                val instance = UserPreference(context)
+                INSTANCE = instance
+                instance
+            }
+        }
     }
 }

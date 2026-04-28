@@ -1,4 +1,4 @@
 package com.example.simsekolah.ui.home
 
-class BannerAdapter {
+class CalendarAdapter {
 }

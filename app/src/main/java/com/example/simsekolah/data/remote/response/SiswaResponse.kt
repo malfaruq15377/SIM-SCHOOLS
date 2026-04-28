@@ -2,39 +2,66 @@ package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
+data class SiswaResponse(
+    @field:SerializedName("data")
+    val data: List<SiswaItem>,
+
+    @field:SerializedName("success")
+    val success: Boolean,
+
+    @field:SerializedName("message")
+    val message: String
+)
+
 data class SiswaItem(
-    @SerializedName("id")
-    val id: Int,
-    @SerializedName("uuid")
-    val uuid: String,
-    @SerializedName("nis")
-    val nis: String,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("email")
-    val email: String,
-    @SerializedName("password")
-    val password: String,
-    @SerializedName("phone")
-    val phone: String,
-    @SerializedName("address")
+    @field:SerializedName("address")
     val address: String,
-    @SerializedName("gender")
+
+    @field:SerializedName("gender")
     val gender: String,
-    @SerializedName("birthDate")
-    val birthDate: String,
-    @SerializedName("parentName")
-    val parentName: String,
-    @SerializedName("kelasId")
+
+    @field:SerializedName("kelasId")
     val kelasId: Int,
-    @SerializedName("status")
-    var status: String,
-    @SerializedName("isActive")
+
+    @field:SerializedName("isActive")
     val isActive: Boolean,
-    @SerializedName("createdAt")
+
+    @field:SerializedName("uuid")
+    val uuid: String,
+
+    @field:SerializedName("birthDate")
+    val birthDate: String,
+
+    @field:SerializedName("createdAt")
     val createdAt: String,
-    @SerializedName("updatedAt")
-    val updatedAt: String,
-    @SerializedName("deletedAt")
-    val deletedAt: String?
+
+    @field:SerializedName("password")
+    val password: String,
+
+    @field:SerializedName("parentName")
+    val parentName: String,
+
+    @field:SerializedName("deletedAt")
+    val deletedAt: Any?,
+
+    @field:SerializedName("phone")
+    val phone: String,
+
+    @field:SerializedName("name")
+    val name: String,
+
+    @field:SerializedName("nis")
+    val nis: String,
+
+    @field:SerializedName("id")
+    val id: Int,
+
+    @field:SerializedName("email")
+    val email: String,
+
+    @field:SerializedName("status")
+    val status: String,
+
+    @field:SerializedName("updatedAt")
+    val updatedAt: String
 )

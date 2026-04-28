@@ -4,104 +4,127 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.simsekolah.R
+import androidx.lifecycle.lifecycleScope
 import com.example.simsekolah.data.local.preference.UserPreference
+import com.example.simsekolah.data.remote.retrofit.ApiConfig
 import com.example.simsekolah.databinding.ActivityLoginBinding
-import com.example.simsekolah.utils.ViewModelFactory
+import com.example.simsekolah.model.UserModel
 import com.example.simsekolah.ui.main.MainActivity
+import com.google.gson.JsonObject
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import retrofit2.HttpException
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityLoginBinding
     private lateinit var userPreference: UserPreference
-
-    private val viewModel: LoginViewModel by viewModels {
-        ViewModelFactory.getInstance(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userPreference = UserPreference(this)
+        userPreference = UserPreference.getInstance(this)
 
         setupAction()
-        observeViewModel()
     }
 
     private fun setupAction() {
         binding.btnSignIn.setOnClickListener {
-            val identifierInput = binding.etEmail.text.toString().trim()
-            val passwordInput = binding.etPassword.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            val isGuru = binding.rbGuru.isChecked
 
-            // 1. Validasi field kosong
-            if (identifierInput.isEmpty()) {
-                binding.etEmail.error = getString(R.string.email_or_username_empty_error)
-                Toast.makeText(this, getString(R.string.email_or_username_empty_error), Toast.LENGTH_SHORT).show()
+            if (email.isEmpty()) {
+                binding.etEmail.error = "Email/Username tidak boleh kosong"
                 return@setOnClickListener
             }
-            if (passwordInput.isEmpty()) {
-                binding.etPassword.error = getString(R.string.password_empty_error)
-                Toast.makeText(this, getString(R.string.password_empty_error), Toast.LENGTH_SHORT).show()
+            if (password.isEmpty()) {
+                binding.etPassword.error = "Password tidak boleh kosong"
                 return@setOnClickListener
             }
 
-            val selectedRoleId = binding.rgRole.checkedRadioButtonId
-            val role = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
-
-            viewModel.login(identifierInput, passwordInput, role, this)
+            loginProcess(email, password, isGuru)
         }
     }
 
-    private fun observeViewModel() {
-        viewModel.isLoading.observe(this) { isLoading ->
-            showLoading(isLoading)
+    private fun loginProcess(email: String, password: String, isGuru: Boolean) {
+        showLoading(true)
+        
+        val requestBody = JsonObject().apply {
+            addProperty("email", email)
+            addProperty("password", password)
         }
 
-        viewModel.loginResult.observe(this) { result ->
-            result.onSuccess { user ->
-                // Cek apakah role yang login sesuai dengan RadioButton yang dipilih
-                val selectedRoleId = binding.rgRole.checkedRadioButtonId
-                val selectedRole = if (selectedRoleId == R.id.rbGuru) "guru" else "siswa"
-
-                // Normalisasi role dari backend (kadang "aktif" di siswa, pastikan kita cek dengan benar)
-                val userRole = user.role?.lowercase() ?: ""
-
-                if ((selectedRole == "guru" && userRole.contains("guru")) ||
-                    (selectedRole == "siswa" && (userRole.contains("siswa") || userRole.contains("aktif")))) {
-
-                    userPreference.setUser(user)
-                    Toast.makeText(this, getString(R.string.login_success, user.role), Toast.LENGTH_SHORT).show()
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+        lifecycleScope.launch {
+            try {
+                val apiService = ApiConfig.getApiService()
+                
+                if (isGuru) {
+                    val response = apiService.loginGuru(requestBody)
+                    val user = UserModel(
+                        id = response.data.user.id,
+                        name = response.data.user.name,
+                        email = response.data.user.email,
+                        phone = response.data.user.phone,
+                        address = response.data.user.address,
+                        role = "guru",
+                        token = response.data.token,
+                        extraInfo = response.data.user.nip
+                    )
+                    userPreference.saveSession(user)
+                    navigateToHome()
                 } else {
-                    // 2. Validasi RadioButton tidak sesuai dengan akun
-                    Toast.makeText(this, "Akun ini bukan terdaftar sebagai ${if (selectedRole == "guru") "Guru" else "Siswa"}", Toast.LENGTH_LONG).show()
-                    showLoading(false)
+                    val response = apiService.loginSiswa(requestBody)
+                    val user = UserModel(
+                        id = response.data.user.id,
+                        name = response.data.user.name,
+                        email = response.data.user.email,
+                        phone = response.data.user.phone,
+                        address = response.data.user.address,
+                        role = "siswa",
+                        token = response.data.token,
+                        extraInfo = response.data.user.nis
+                    )
+                    userPreference.saveSession(user)
+                    navigateToHome()
                 }
-
-            }.onFailure { exception ->
-                // 3. Validasi Password/Username salah (dari backend)
-                val errorMessage = exception.message ?: getString(R.string.login_failed)
-                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                val message = try {
+                    // Validasi apakah errorBody adalah JSON
+                    if (errorBody != null && errorBody.startsWith("{")) {
+                        JSONObject(errorBody).getString("msg")
+                    } else {
+                        "Gagal login: Respon server tidak valid (${e.code()})"
+                    }
+                } catch (jsonEx: Exception) {
+                    "Gagal memproses data error dari server"
+                }
+                showToast(message)
+            } catch (e: Exception) {
+                showToast("Koneksi gagal: ${e.localizedMessage}")
+            } finally {
                 showLoading(false)
             }
         }
     }
 
+    private fun navigateToHome() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
+    }
+
     private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.btnSignIn.isEnabled = !isLoading
-        if (isLoading) {
-            binding.btnSignIn.text = ""
-            binding.progressBar.visibility = View.VISIBLE
-        } else {
-            binding.btnSignIn.text = getString(R.string.sign_in)
-            binding.progressBar.visibility = View.GONE
-        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
