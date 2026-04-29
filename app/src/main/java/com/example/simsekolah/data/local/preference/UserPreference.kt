@@ -28,6 +28,7 @@ class UserPreference(private val context: Context) {
     private val GENDER_KEY = stringPreferencesKey("gender")
     private val BIRTH_DATE_KEY = stringPreferencesKey("birth_date")
     private val IS_WALI_KELAS_KEY = booleanPreferencesKey("is_wali_kelas")
+    private val KELAS_ID_KEY = intPreferencesKey("kelas_id")
 
     suspend fun saveSession(user: UserModel) {
         context.dataStore.edit { preferences ->
@@ -43,6 +44,7 @@ class UserPreference(private val context: Context) {
             preferences[GENDER_KEY] = user.gender ?: ""
             preferences[BIRTH_DATE_KEY] = user.birthDate ?: ""
             preferences[IS_WALI_KELAS_KEY] = user.isWaliKelas
+            preferences[KELAS_ID_KEY] = user.kelasId ?: 0
         }
     }
 
@@ -60,7 +62,8 @@ class UserPreference(private val context: Context) {
                 preferences[EXTRA_KEY],
                 preferences[GENDER_KEY],
                 preferences[BIRTH_DATE_KEY],
-                preferences[IS_WALI_KELAS_KEY] ?: false
+                preferences[IS_WALI_KELAS_KEY] ?: false,
+                preferences[KELAS_ID_KEY]
             )
         }
     }

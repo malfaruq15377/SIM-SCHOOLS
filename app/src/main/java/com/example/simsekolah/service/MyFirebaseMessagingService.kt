@@ -18,19 +18,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        remoteMessage.notification?.let {
-            val title = it.title ?: "Pemberitahuan Baru"
-            val body = it.body ?: "Ada update dari SIM Sekolah"
-            
-            // 1. Simpan ke database internal in-app notification
-            NotificationHelper.addNotification(this, title, body, "tugas")
-            
-            // 2. Tampilkan di push notification bar
-            showNotification(title, body)
-        }
+        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"] ?: "Pemberitahuan Baru"
+        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"] ?: "Ada update dari SIM Sekolah"
+        val page = remoteMessage.data["page"] // e.g., "assignments"
+
+        // 1. Simpan ke database internal in-app notification
+        NotificationHelper.addNotification(this, title, body, page ?: "umum")
+        
+        // 2. Tampilkan di push notification bar
+        showNotification(title, body, page)
     }
 
-    private fun showNotification(title: String, message: String) {
+    private fun showNotification(title: String, message: String, page: String?) {
         val channelId = "school_notification_channel"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -40,9 +39,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra("page", page)
         }
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 
+            System.currentTimeMillis().toInt(), 
+            intent, 
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -58,6 +63,5 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // Kirim token ke server jika diperlukan
     }
 }

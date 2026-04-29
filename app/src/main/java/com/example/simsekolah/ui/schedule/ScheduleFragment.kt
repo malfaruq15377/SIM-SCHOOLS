@@ -9,24 +9,29 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.simsekolah.R
+import com.example.simsekolah.data.local.preference.UserPreference
 import com.example.simsekolah.databinding.FragmentScheduleBinding
 import com.example.simsekolah.utils.ViewModelFactory
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ScheduleFragment : Fragment() {
+
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: ScheduleViewModel by viewModels {
-        ViewModelFactory.getInstance()
+        ViewModelFactory.getInstance(requireContext())
     }
 
     private lateinit var scheduleAdapter: ScheduleAdapter
+    private lateinit var userPreference: UserPreference
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentScheduleBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -34,53 +39,40 @@ class ScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        userPreference = UserPreference.getInstance(requireContext())
         setupRecyclerView()
-        setupObservers()
+        observeViewModel()
+        loadData()
     }
 
     private fun setupRecyclerView() {
-        // We'll update the adapter once we know the user role
-        scheduleAdapter = ScheduleAdapter(false) { schedule ->
-            val bundle = Bundle().apply {
-                putParcelable("schedule", schedule)
-            }
-            findNavController().navigate(R.id.editScheduleFragment, bundle)
-        }
-        
+        scheduleAdapter = ScheduleAdapter()
         binding.rvDays.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = scheduleAdapter
         }
     }
 
-    private fun setupObservers() {
+    private fun loadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val user = userPreference.getSession().first()
+            // In a real app, we'd get kelasId from user profile. 
+            // Using placeholder 1 for demonstration.
+            viewModel.loadSchedules(1)
+        }
+    }
+
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.userProfile.collect { user ->
-                        user?.let {
-                            val isGuru = it.role == "guru"
-                            // Re-initialize adapter with correct role if it changes
-                            scheduleAdapter = ScheduleAdapter(isGuru) { schedule ->
-                                val bundle = Bundle().apply {
-                                    putParcelable("schedule", schedule)
-                                }
-                                findNavController().navigate(R.id.editScheduleFragment, bundle)
-                            }
-                            binding.rvDays.adapter = scheduleAdapter
-                            // Re-submit current list to new adapter
-                            scheduleAdapter.submitList(viewModel.schedules.value)
-                        }
+                    viewModel.schedules.collect { list ->
+                        scheduleAdapter.setSchedules(list)
                     }
                 }
-                
                 launch {
-                    viewModel.schedules.collect { list ->
-                        binding.progressBar.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-                        scheduleAdapter.submitList(list)
-                        if (list.isNotEmpty()) {
-                            binding.progressBar.visibility = View.GONE
-                        }
+                    viewModel.isLoading.collect { isLoading ->
+                        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                     }
                 }
             }

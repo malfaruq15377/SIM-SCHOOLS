@@ -60,7 +60,7 @@ class LoginActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val apiService = ApiConfig.getApiService()
+                val apiService = ApiConfig.getApiService(this@LoginActivity)
                 
                 if (isGuru) {
                     val response = apiService.loginGuru(requestBody)

@@ -1,18 +1,22 @@
 package com.example.simsekolah.data.remote.response
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import com.google.gson.annotations.SerializedName
 
-@Parcelize
 data class UserResponse(
-    val uid: String = "",
-    val name: String = "",
-    val role: String = "", // "guru" or "siswa"
-    val email: String = "",
-    val photoUrl: String? = null,
-    val backgroundUrl: String? = null,
-    val kelasId: String? = null,
-    val namaKelas: String? = null,
-    val waliKelasId: String? = null, // uid guru
-    val waliKelasName: String? = null
-) : Parcelable
+    @field:SerializedName("id") val id: Int? = null,
+    @field:SerializedName("uid") val uid: String = "",
+    @field:SerializedName("name") val name: String = "",
+    @field:SerializedName("email") val email: String = "",
+    @field:SerializedName("phone") val phone: String? = null,
+    @field:SerializedName("address") val address: String? = null,
+    @field:SerializedName("role") val role: String = "",
+    @field:SerializedName("token") val token: String? = null,
+    @field:SerializedName("nis") val nis: String? = null,
+    @field:SerializedName("nip") val nip: String? = null,
+    @field:SerializedName("kelasId") val kelasId: Int? = null,
+    @field:SerializedName("waliKelasId") val waliKelasId: Int? = null,
+    @field:SerializedName("gender") val gender: String? = null,
+    @field:SerializedName("birthDate") val birthDate: String? = null,
+    @field:SerializedName("photoUrl") val photoUrl: String? = null,
+    @field:SerializedName("backgroundUrl") val backgroundUrl: String? = null
+)

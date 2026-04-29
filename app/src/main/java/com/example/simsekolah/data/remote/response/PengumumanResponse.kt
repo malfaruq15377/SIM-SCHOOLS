@@ -2,7 +2,7 @@ package com.example.simsekolah.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class MapelResponse(
+data class PengumumanResponse(
 
 	@field:SerializedName("data")
 	val data: List<DataItem>,

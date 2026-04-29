@@ -3,59 +3,12 @@ package com.example.simsekolah.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class GuruResponse(
-    @field:SerializedName("data")
-    val data: List<GuruItem>,
-
-    @field:SerializedName("success")
-    val success: Boolean,
-
-    @field:SerializedName("message")
-    val message: String
+	@field:SerializedName("success") val success: Boolean,
+	@field:SerializedName("message") val message: String,
+	@field:SerializedName("data") val data: GuruLoginData
 )
 
-data class GuruItem(
-    @field:SerializedName("address")
-    val address: String,
-
-    @field:SerializedName("gender")
-    val gender: String,
-
-    @field:SerializedName("isActive")
-    val isActive: Boolean,
-
-    @field:SerializedName("uuid")
-    val uuid: String,
-
-    @field:SerializedName("birthDate")
-    val birthDate: String,
-
-    @field:SerializedName("isWaliKelas")
-    val isWaliKelas: Boolean,
-
-    @field:SerializedName("createdAt")
-    val createdAt: String,
-
-    @field:SerializedName("password")
-    val password: String,
-
-    @field:SerializedName("nip")
-    val nip: String,
-
-    @field:SerializedName("phone")
-    val phone: String,
-
-    @field:SerializedName("name")
-    val name: String,
-
-    @field:SerializedName("id")
-    val id: Int,
-
-    @field:SerializedName("email")
-    val email: String,
-
-    @field:SerializedName("status")
-    val status: String,
-
-    @field:SerializedName("updatedAt")
-    val updatedAt: String
+data class GuruLoginData(
+	@field:SerializedName("user") val user: GuruItem,
+	@field:SerializedName("token") val token: String
 )

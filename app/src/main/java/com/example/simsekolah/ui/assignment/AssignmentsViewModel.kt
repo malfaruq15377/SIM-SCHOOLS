@@ -1,12 +1,12 @@
 package com.example.simsekolah.ui.assignment
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.simsekolah.data.local.entity.AssignmentEntity
+import com.example.simsekolah.data.remote.response.AssignmentItem
+import com.example.simsekolah.data.remote.response.SubmissionItem
+import com.example.simsekolah.data.remote.response.SiswaItem
 import com.example.simsekolah.data.repository.SchoolRepository
-import com.example.simsekolah.data.remote.response.AssignmentResponse
-import com.example.simsekolah.data.remote.response.SubmissionResponse
-import com.example.simsekolah.data.remote.response.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -14,97 +14,98 @@ class AssignmentsViewModel(
     private val schoolRepo: SchoolRepository
 ) : ViewModel() {
 
-    private val _userProfile = MutableStateFlow<UserResponse?>(null)
-    val userProfile: StateFlow<UserResponse?> = _userProfile.asStateFlow()
+    private val _assignments = MutableStateFlow<List<AssignmentItem>>(emptyList())
+    val assignments: StateFlow<List<AssignmentItem>> = _assignments.asStateFlow()
 
-    private val _assignments = MutableStateFlow<List<AssignmentResponse>>(emptyList())
-    val assignments: StateFlow<List<AssignmentResponse>> = _assignments.asStateFlow()
+    private val _submissions = MutableStateFlow<List<SubmissionItem>>(emptyList())
+    val submissions: StateFlow<List<SubmissionItem>> = _submissions.asStateFlow()
 
-    private val _operationStatus = MutableSharedFlow<Result<Unit>>()
-    val operationStatus = _operationStatus.asSharedFlow()
+    private val _students = MutableStateFlow<List<SiswaItem>>(emptyList())
+    val students: StateFlow<List<SiswaItem>> = _students.asStateFlow()
 
-    init {
-        val uid = schoolRepo.getCurrentUserUid()
-        if (uid != null) {
-            viewModelScope.launch {
-                schoolRepo.getUserProfileRealtime(uid).collect { user ->
-                    _userProfile.value = user
-                    if (user != null) {
-                        loadAssignments(user)
-                    }
-                }
-            }
-        }
-    }
+    private val _studentSubmissions = MutableStateFlow<List<SubmissionItem>>(emptyList())
+    val studentSubmissions: StateFlow<List<SubmissionItem>> = _studentSubmissions.asStateFlow()
 
-    private fun loadAssignments(user: UserResponse) {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _createStatus = MutableSharedFlow<Boolean>()
+    val createStatus: SharedFlow<Boolean> = _createStatus.asSharedFlow()
+
+    fun loadAssignments(guruId: Int? = null, kelasId: Int? = null) {
         viewModelScope.launch {
-            if (user.role == "guru") {
-                schoolRepo.getAssignmentsForGuru(user.uid).collect { list ->
+            _isLoading.value = true
+            schoolRepo.getAssignmentsFirestore(guruId, kelasId)
+                .catch { 
+                    _assignments.value = emptyList()
+                    _isLoading.value = false
+                }
+                .collect { list ->
                     _assignments.value = list
+                    _isLoading.value = false
                 }
-            } else if (user.role == "siswa" && user.waliKelasId != null) {
-                val allAssignmentsFlow = schoolRepo.getAssignmentsForSiswa(user.waliKelasId)
-                val submissions = schoolRepo.getSubmissionsForStudent(user.uid)
-                val submittedIds = submissions.map { it.assignmentId }.toSet()
-                
-                allAssignmentsFlow.collect { list ->
-                    _assignments.value = list.filter { it.id !in submittedIds }
-                }
-            }
         }
     }
 
-    fun createAssignment(title: String, description: String, dueDate: String, fileUri: Uri?) {
-        val user = _userProfile.value ?: return
+    fun loadSubmissions(assignmentId: Int) {
         viewModelScope.launch {
-            try {
-                var fileUrl: String? = null
-                if (fileUri != null) {
-                    fileUrl = schoolRepo.uploadFile(fileUri, "assignments")
+            _isLoading.value = true
+            schoolRepo.getSubmissionsFirestore(assignmentId)
+                .catch { _submissions.value = emptyList() }
+                .collect { list ->
+                    _submissions.value = list
                 }
-                
-                val assignment = AssignmentResponse(
+            _isLoading.value = false
+        }
+    }
+
+    fun loadStudentSubmissions(siswaId: Int) {
+        viewModelScope.launch {
+            schoolRepo.getSubmissionsBySiswa(siswaId)
+                .catch { _studentSubmissions.value = emptyList() }
+                .collect { list ->
+                    _studentSubmissions.value = list
+                }
+        }
+    }
+
+    fun loadAllStudents() {
+        viewModelScope.launch {
+            schoolRepo.getSiswa()
+                .catch { _students.value = emptyList() }
+                .collect { response ->
+                    _students.value = response.data
+                }
+        }
+    }
+
+    fun createAssignment(
+        title: String,
+        description: String,
+        dueDate: String,
+        fileUrl: String?,
+        guruId: Int,
+        kelasId: Int
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val entity = AssignmentEntity(
                     title = title,
                     description = description,
                     dueDate = dueDate,
                     fileUrl = fileUrl,
-                    guruId = user.uid,
-                    kelasId = user.kelasId ?: ""
+                    guruId = guruId,
+                    kelasId = kelasId
                 )
-                
-                val result = schoolRepo.createAssignment(assignment)
-                if (result.isSuccess) {
-                    schoolRepo.createNotificationsForClass(
-                        user.kelasId ?: "",
-                        "Tugas Baru: $title",
-                        "Guru Anda telah menambahkan tugas baru.",
-                        "Assignment",
-                        ""
-                    )
-                }
-                _operationStatus.emit(result)
+                schoolRepo.saveAssignmentLocal(entity)
+                schoolRepo.saveAssignmentFirestore(entity) // Ini yang menyebabkan error PERMISSION_DENIED
+                _createStatus.emit(true)
             } catch (e: Exception) {
-                _operationStatus.emit(Result.failure(e))
-            }
-        }
-    }
-
-    fun submitAssignment(assignmentId: String, fileUri: Uri) {
-        val user = _userProfile.value ?: return
-        viewModelScope.launch {
-            try {
-                val fileUrl = schoolRepo.uploadFile(fileUri, "submissions")
-                val submission = SubmissionResponse(
-                    assignmentId = assignmentId,
-                    studentId = user.uid,
-                    fileUrl = fileUrl
-                )
-                val result = schoolRepo.submitAssignment(submission)
-                _operationStatus.emit(result)
-                loadAssignments(user)
-            } catch (e: Exception) {
-                _operationStatus.emit(Result.failure(e))
+                android.util.Log.e("AssignmentsViewModel", "Error create assignment: ${e.message}")
+                _createStatus.emit(false)
+            } finally {
+                _isLoading.value = false
             }
         }
     }

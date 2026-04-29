@@ -1,8 +1,8 @@
 package com.example.simsekolah.utils
 
 import android.content.Context
+import com.example.simsekolah.data.local.entity.NotificationModel
 import com.example.simsekolah.data.local.room.SekolahDatabase
-import com.example.simsekolah.model.NotificationModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

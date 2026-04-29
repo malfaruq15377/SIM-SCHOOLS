@@ -3,65 +3,66 @@ package com.example.simsekolah.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class SiswaResponse(
-    @field:SerializedName("data")
-    val data: List<SiswaItem>,
-
-    @field:SerializedName("success")
-    val success: Boolean,
-
-    @field:SerializedName("message")
-    val message: String
+	@field:SerializedName("success") val success: Boolean,
+	@field:SerializedName("message") val message: String,
+	@field:SerializedName("data") val data: SiswaLoginData
 )
 
-data class SiswaItem(
-    @field:SerializedName("address")
-    val address: String,
+data class SiswaLoginData(
+	@field:SerializedName("user") val user: SiswaItem,
+	@field:SerializedName("token") val token: String
+)
 
-    @field:SerializedName("gender")
-    val gender: String,
+data class DataItem(
 
-    @field:SerializedName("kelasId")
-    val kelasId: Int,
+	@field:SerializedName("address")
+	val address: String,
 
-    @field:SerializedName("isActive")
-    val isActive: Boolean,
+	@field:SerializedName("gender")
+	val gender: String,
 
-    @field:SerializedName("uuid")
-    val uuid: String,
+	@field:SerializedName("kelasId")
+	val kelasId: Int,
 
-    @field:SerializedName("birthDate")
-    val birthDate: String,
+	@field:SerializedName("isActive")
+	val isActive: Boolean,
 
-    @field:SerializedName("createdAt")
-    val createdAt: String,
+	@field:SerializedName("uuid")
+	val uuid: String,
 
-    @field:SerializedName("password")
-    val password: String,
+	@field:SerializedName("birthDate")
+	val birthDate: String,
 
-    @field:SerializedName("parentName")
-    val parentName: String,
+	@field:SerializedName("createdAt")
+	val createdAt: String,
 
-    @field:SerializedName("deletedAt")
-    val deletedAt: Any?,
+	@field:SerializedName("password")
+	val password: String,
 
-    @field:SerializedName("phone")
-    val phone: String,
+	@field:SerializedName("parentName")
+	val parentName: String,
 
-    @field:SerializedName("name")
-    val name: String,
+	@field:SerializedName("deletedAt")
+	val deletedAt: Any,
 
-    @field:SerializedName("nis")
-    val nis: String,
+	@field:SerializedName("phone")
+	val phone: String,
 
-    @field:SerializedName("id")
-    val id: Int,
+	@field:SerializedName("name")
+	val name: String,
 
-    @field:SerializedName("email")
-    val email: String,
+	@field:SerializedName("nis")
+	val nis: String,
 
-    @field:SerializedName("status")
-    val status: String,
+	@field:SerializedName("id")
+	val id: Int,
 
-    @field:SerializedName("updatedAt")
-    val updatedAt: String
+	@field:SerializedName("email")
+	val email: String,
+
+	@field:SerializedName("status")
+	val status: String,
+
+	@field:SerializedName("updatedAt")
+	val updatedAt: String
 )

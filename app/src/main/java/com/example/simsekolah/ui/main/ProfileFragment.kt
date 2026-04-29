@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.simsekolah.data.local.preference.UserPreference
+import com.example.simsekolah.data.remote.retrofit.ApiConfig
 import com.example.simsekolah.databinding.FragmentProfileBinding
 import com.example.simsekolah.ui.auth.LoginActivity
 import com.example.simsekolah.ui.settings.SettingActivity
@@ -40,56 +41,63 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val user = userPreference.getSession().first()
             binding.apply {
-                // Nama di bagian atas
                 tvDisplayName.text = user.name
-                
-                // Logika Role: Guru Pengajar atau Wali Kelas
-                if (user.role == "guru") {
-                    tvDisplayRole.text = if (user.isWaliKelas) "Wali Kelas" else "Guru Pengajar"
-                    tvDisplayMajor.text = "NIP: ${user.extraInfo}"
-                    tvClassBadge.text = if (user.isWaliKelas) "Wali" else "Guru"
-                    
-                    // Tampilkan label Wali Kelas di card info jika true
-                    if (user.isWaliKelas) {
-                        layoutWaliKelas.visibility = View.VISIBLE
-                        tvWaliKelas.text = "Ya (Wali Kelas)"
-                    } else {
-                        layoutWaliKelas.visibility = View.GONE
-                    }
-                } else {
-                    tvDisplayRole.text = "Siswa"
-                    tvDisplayMajor.text = "NIS: ${user.extraInfo}"
-                    tvClassBadge.text = "Siswa" // Bisa diganti logic kelas jika ada datanya
-                    layoutWaliKelas.visibility = View.GONE
-                }
-                
-                // Isi bagian Identitas (Badge kanan)
-                tvMajorBadge.text = user.gender ?: "-"
-                
-                // Isi Card Informasi Detail
                 tvNama.text = user.name
                 tvEmail.text = user.email
                 tvPhone.text = user.phone
                 tvAddress.text = user.address
-                
                 tvStatusBadge.text = "Aktif"
+                tvMajorBadge.text = user.gender ?: "-"
+
+                if (user.role == "guru") {
+                    tvDisplayRole.text = if (user.isWaliKelas) "Wali Kelas" else "Guru Pengajar"
+                    tvDisplayMajor.text = "NIP: ${user.extraInfo}"
+                    tvClassBadge.text = if (user.isWaliKelas) "Wali Kelas" else "Pengajar"
+                    
+                    if (user.isWaliKelas) {
+                        layoutWaliKelas.visibility = View.VISIBLE
+                        // Untuk guru wali kelas, dia membimbing kelasnya sendiri
+                        tvWaliKelas.text = "Membimbing Kelas ${user.kelasId ?: "-"}"
+                    }
+                } else {
+                    tvDisplayRole.text = "Siswa"
+                    tvDisplayMajor.text = "NIS: ${user.extraInfo}"
+                    tvClassBadge.text = "Kelas ${user.kelasId ?: "-"}"
+                    
+                    // CARA LIHAT WALI KELAS UNTUK SISWA
+                    layoutWaliKelas.visibility = View.VISIBLE
+                    fetchWaliKelasName(user.kelasId ?: 0)
+                }
+            }
+        }
+    }
+
+    private fun fetchWaliKelasName(kelasId: Int) {
+        if (kelasId == 0) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val apiService = ApiConfig.getApiService(requireContext())
+                val kelasResponse = apiService.getKelas()
+                val targetKelas = kelasResponse.data.find { it.id == kelasId }
+                
+                if (targetKelas != null) {
+                    val guruResponse = apiService.getGuru()
+                    val waliKelas = guruResponse.data.find { it.id == targetKelas.waliKelasId }
+                    binding.tvWaliKelas.text = waliKelas?.name ?: "Belum Ditentukan"
+                }
+            } catch (e: Exception) {
+                binding.tvWaliKelas.text = "Gagal memuat data"
             }
         }
     }
 
     private fun setupAction() {
         binding.apply {
-            btnBack.setOnClickListener {
-                findNavController().navigateUp()
-            }
-
+            btnBack.setOnClickListener { findNavController().navigateUp() }
             ivSetting.setOnClickListener {
-                val intent = Intent(requireContext(), SettingActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(requireContext(), SettingActivity::class.java))
             }
-            
             btnUpdate.setOnClickListener {
-                // Temporary logout for testing
                 viewLifecycleOwner.lifecycleScope.launch {
                     userPreference.logout()
                     val intent = Intent(requireContext(), LoginActivity::class.java)

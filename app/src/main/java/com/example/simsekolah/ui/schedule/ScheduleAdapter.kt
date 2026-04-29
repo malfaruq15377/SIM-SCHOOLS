@@ -3,65 +3,57 @@ package com.example.simsekolah.ui.schedule
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.simsekolah.R
+import com.example.simsekolah.data.remote.response.JadwalItem
 import com.example.simsekolah.databinding.ItemDayScheduleBinding
-import com.example.simsekolah.model.ScheduleModel
 
-class ScheduleAdapter(
-    private val isGuru: Boolean,
-    private val onEditClick: (ScheduleModel) -> Unit
-) : ListAdapter<ScheduleModel, ScheduleAdapter.ViewHolder>(DiffCallback) {
+class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.DayViewHolder>() {
 
-    private val expandedStates = mutableMapOf<String, Boolean>()
+    private val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+    private var schedules: List<JadwalItem> = emptyList()
+    private val expandedDays = mutableSetOf<String>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    fun setSchedules(newList: List<JadwalItem>) {
+        schedules = newList
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = ItemDayScheduleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        return DayViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
+        val dayName = days[position]
+        holder.bind(dayName)
     }
 
-    inner class ViewHolder(private val binding: ItemDayScheduleBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ScheduleModel) {
-            binding.tvDayName.text = item.day
+    override fun getItemCount(): Int = days.size
+
+    inner class DayViewHolder(private val binding: ItemDayScheduleBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(dayName: String) {
+            binding.tvDayName.text = dayName
             
-            // Setup Nested RecyclerView
-            val dayAdapter = DayScheduleAdapter()
-            binding.rvDayItems.layoutManager = LinearLayoutManager(itemView.context)
-            binding.rvDayItems.adapter = dayAdapter
-            dayAdapter.submitList(item.subjects)
-
-            // Role based UI
-            binding.btnEditDay.visibility = if (isGuru) View.VISIBLE else View.GONE
-            binding.btnEditDay.setOnClickListener { onEditClick(item) }
-
-            // Expand/Collapse Logic
-            val isExpanded = expandedStates[item.day] ?: false
+            val isExpanded = expandedDays.contains(dayName)
             binding.layoutExpand.visibility = if (isExpanded) View.VISIBLE else View.GONE
-            binding.ivExpand.setImageResource(if (isExpanded) R.drawable.ic_minus_circle else R.drawable.ic_plus_circle)
+            
+            // Filter schedules for this day
+            val daySchedules = schedules.filter { it.hari.equals(dayName, ignoreCase = true) }
+            
+            val rowAdapter = ScheduleRowAdapter()
+            binding.rvDayItems.layoutManager = LinearLayoutManager(itemView.context)
+            binding.rvDayItems.adapter = rowAdapter
+            rowAdapter.submitList(daySchedules)
 
             binding.layoutHeader.setOnClickListener {
-                val newState = !isExpanded
-                expandedStates[item.day] = newState
-                binding.layoutExpand.visibility = if (newState) View.VISIBLE else View.GONE
-                binding.ivExpand.setImageResource(if (newState) R.drawable.ic_minus_circle else R.drawable.ic_plus_circle)
+                if (expandedDays.contains(dayName)) {
+                    expandedDays.remove(dayName)
+                } else {
+                    expandedDays.add(dayName)
+                }
+                notifyItemChanged(adapterPosition)
             }
-        }
-    }
-
-    companion object DiffCallback : DiffUtil.ItemCallback<ScheduleModel>() {
-        override fun areItemsTheSame(oldItem: ScheduleModel, newItem: ScheduleModel): Boolean {
-            return oldItem.day == newItem.day
-        }
-
-        override fun areContentsTheSame(oldItem: ScheduleModel, newItem: ScheduleModel): Boolean {
-            return oldItem == newItem
         }
     }
 }

@@ -1,7 +1,10 @@
 package com.example.simsekolah.utils
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.simsekolah.data.local.room.SekolahDatabase
+import com.example.simsekolah.data.remote.retrofit.ApiConfig
 import com.example.simsekolah.data.repository.SchoolRepository
 import com.example.simsekolah.ui.assignment.AssignmentsViewModel
 import com.example.simsekolah.ui.attendance.AttendanceViewModel
@@ -47,9 +50,14 @@ class ViewModelFactory private constructor(
         @Volatile
         private var instance: ViewModelFactory? = null
 
-        fun getInstance(): ViewModelFactory =
+        fun getInstance(requireContext: Context): ViewModelFactory =
             instance ?: synchronized(this) {
-                instance ?: ViewModelFactory(SchoolRepository())
+                instance ?: ViewModelFactory(
+                    SchoolRepository(
+                        ApiConfig.getApiService(requireContext),
+                        SekolahDatabase.getDatabase(requireContext).sekolahDao()
+                    )
+                )
             }.also { instance = it }
     }
 }
