@@ -1,10 +1,10 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.data.remote.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class NotificationModel(
+data class NotificationResponse(
     val id: String = "",
     val title: String = "",
     val message: String = "",

@@ -3,38 +3,31 @@ package com.example.simsekolah.ui.assignment
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.data.repository.AssignmentRepository
-import com.example.simsekolah.data.repository.AuthRepository
-import com.example.simsekolah.data.repository.NotificationRepository
-import com.example.simsekolah.model.AssignmentModel
-import com.example.simsekolah.model.SubmissionModel
-import com.example.simsekolah.model.UserModel
+import com.example.simsekolah.data.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.AssignmentResponse
+import com.example.simsekolah.data.remote.response.SubmissionResponse
+import com.example.simsekolah.data.remote.response.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AssignmentsViewModel(
-    private val assignmentRepo: AssignmentRepository,
-    private val authRepo: AuthRepository,
-    private val notificationRepo: NotificationRepository
+    private val schoolRepo: SchoolRepository
 ) : ViewModel() {
 
-    private val _userProfile = MutableStateFlow<UserModel?>(null)
-    val userProfile: StateFlow<UserModel?> = _userProfile.asStateFlow()
+    private val _userProfile = MutableStateFlow<UserResponse?>(null)
+    val userProfile: StateFlow<UserResponse?> = _userProfile.asStateFlow()
 
-    private val _assignments = MutableStateFlow<List<AssignmentModel>>(emptyList())
-    val assignments: StateFlow<List<AssignmentModel>> = _assignments.asStateFlow()
-
-    private val _uploadStatus = MutableSharedFlow<Result<String>>()
-    val uploadStatus = _uploadStatus.asSharedFlow()
+    private val _assignments = MutableStateFlow<List<AssignmentResponse>>(emptyList())
+    val assignments: StateFlow<List<AssignmentResponse>> = _assignments.asStateFlow()
 
     private val _operationStatus = MutableSharedFlow<Result<Unit>>()
     val operationStatus = _operationStatus.asSharedFlow()
 
     init {
-        val uid = authRepo.getCurrentUserUid()
+        val uid = schoolRepo.getCurrentUserUid()
         if (uid != null) {
             viewModelScope.launch {
-                authRepo.getUserProfileRealtime(uid).collect { user ->
+                schoolRepo.getUserProfileRealtime(uid).collect { user ->
                     _userProfile.value = user
                     if (user != null) {
                         loadAssignments(user)
@@ -44,15 +37,15 @@ class AssignmentsViewModel(
         }
     }
 
-    private fun loadAssignments(user: UserModel) {
+    private fun loadAssignments(user: UserResponse) {
         viewModelScope.launch {
             if (user.role == "guru") {
-                assignmentRepo.getAssignmentsForGuru(user.uid).collect { list ->
+                schoolRepo.getAssignmentsForGuru(user.uid).collect { list ->
                     _assignments.value = list
                 }
             } else if (user.role == "siswa" && user.waliKelasId != null) {
-                val allAssignmentsFlow = assignmentRepo.getAssignmentsForSiswa(user.waliKelasId)
-                val submissions = assignmentRepo.getSubmissionsForStudent(user.uid)
+                val allAssignmentsFlow = schoolRepo.getAssignmentsForSiswa(user.waliKelasId)
+                val submissions = schoolRepo.getSubmissionsForStudent(user.uid)
                 val submittedIds = submissions.map { it.assignmentId }.toSet()
                 
                 allAssignmentsFlow.collect { list ->
@@ -68,10 +61,10 @@ class AssignmentsViewModel(
             try {
                 var fileUrl: String? = null
                 if (fileUri != null) {
-                    fileUrl = assignmentRepo.uploadFile(fileUri, "assignments")
+                    fileUrl = schoolRepo.uploadFile(fileUri, "assignments")
                 }
                 
-                val assignment = AssignmentModel(
+                val assignment = AssignmentResponse(
                     title = title,
                     description = description,
                     dueDate = dueDate,
@@ -80,15 +73,14 @@ class AssignmentsViewModel(
                     kelasId = user.kelasId ?: ""
                 )
                 
-                val result = assignmentRepo.createAssignment(assignment)
+                val result = schoolRepo.createAssignment(assignment)
                 if (result.isSuccess) {
-                    // Trigger Notification
-                    notificationRepo.createNotificationsForClass(
+                    schoolRepo.createNotificationsForClass(
                         user.kelasId ?: "",
                         "Tugas Baru: $title",
                         "Guru Anda telah menambahkan tugas baru.",
                         "Assignment",
-                        "" // In a real app, pass the new doc ID
+                        ""
                     )
                 }
                 _operationStatus.emit(result)
@@ -102,15 +94,14 @@ class AssignmentsViewModel(
         val user = _userProfile.value ?: return
         viewModelScope.launch {
             try {
-                val fileUrl = assignmentRepo.uploadFile(fileUri, "submissions")
-                val submission = SubmissionModel(
+                val fileUrl = schoolRepo.uploadFile(fileUri, "submissions")
+                val submission = SubmissionResponse(
                     assignmentId = assignmentId,
                     studentId = user.uid,
                     fileUrl = fileUrl
                 )
-                val result = assignmentRepo.submitAssignment(submission)
+                val result = schoolRepo.submitAssignment(submission)
                 _operationStatus.emit(result)
-                // Refresh list
                 loadAssignments(user)
             } catch (e: Exception) {
                 _operationStatus.emit(Result.failure(e))

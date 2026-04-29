@@ -1,18 +1,18 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.data.remote.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ScheduleModel(
+data class ScheduleResponse(
     val id: String = "",
     val kelasId: String = "",
     val day: String = "", // "Senin", "Selasa", etc.
-    val subjects: List<SubjectModel> = emptyList()
+    val subjects: List<SubjectItem> = emptyList()
 ) : Parcelable
 
 @Parcelize
-data class SubjectModel(
+data class SubjectItem(
     val name: String = "",
     val time: String = "",
     val guruName: String = ""

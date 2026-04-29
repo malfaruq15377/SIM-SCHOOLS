@@ -1,10 +1,10 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.data.remote.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class AssignmentModel(
+data class AssignmentResponse(
     val id: String = "",
     val title: String = "",
     val description: String = "",
@@ -16,7 +16,7 @@ data class AssignmentModel(
 ) : Parcelable
 
 @Parcelize
-data class SubmissionModel(
+data class SubmissionResponse(
     val id: String = "",
     val assignmentId: String = "",
     val studentId: String = "",

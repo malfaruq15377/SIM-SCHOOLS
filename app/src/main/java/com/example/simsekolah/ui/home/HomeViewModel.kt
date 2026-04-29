@@ -2,35 +2,31 @@ package com.example.simsekolah.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.data.repository.AssignmentRepository
-import com.example.simsekolah.data.repository.AuthRepository
-import com.example.simsekolah.data.repository.EventRepository
-import com.example.simsekolah.model.AssignmentModel
-import com.example.simsekolah.model.EventModel
-import com.example.simsekolah.model.UserModel
+import com.example.simsekolah.data.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.AssignmentResponse
+import com.example.simsekolah.data.remote.response.EventResponse
+import com.example.simsekolah.data.remote.response.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val authRepo: AuthRepository,
-    private val assignmentRepo: AssignmentRepository,
-    private val eventRepo: EventRepository
+    private val schoolRepo: SchoolRepository
 ) : ViewModel() {
 
-    private val _userProfile = MutableStateFlow<UserModel?>(null)
-    val userProfile: StateFlow<UserModel?> = _userProfile.asStateFlow()
+    private val _userProfile = MutableStateFlow<UserResponse?>(null)
+    val userProfile: StateFlow<UserResponse?> = _userProfile.asStateFlow()
 
-    private val _assignments = MutableStateFlow<List<AssignmentModel>>(emptyList())
-    val assignments: StateFlow<List<AssignmentModel>> = _assignments.asStateFlow()
+    private val _assignments = MutableStateFlow<List<AssignmentResponse>>(emptyList())
+    val assignments: StateFlow<List<AssignmentResponse>> = _assignments.asStateFlow()
 
-    private val _events = MutableStateFlow<List<EventModel>>(emptyList())
-    val events: StateFlow<List<EventModel>> = _events.asStateFlow()
+    private val _events = MutableStateFlow<List<EventResponse>>(emptyList())
+    val events: StateFlow<List<EventResponse>> = _events.asStateFlow()
 
     init {
-        val uid = authRepo.getCurrentUserUid()
+        val uid = schoolRepo.getCurrentUserUid()
         if (uid != null) {
             viewModelScope.launch {
-                authRepo.getUserProfileRealtime(uid).collect { user ->
+                schoolRepo.getUserProfileRealtime(uid).collect { user ->
                     _userProfile.value = user
                     if (user != null) {
                         fetchDataForUser(user)
@@ -40,21 +36,21 @@ class HomeViewModel(
         }
     }
 
-    private fun fetchDataForUser(user: UserModel) {
+    private fun fetchDataForUser(user: UserResponse) {
         viewModelScope.launch {
             if (user.role == "guru") {
-                assignmentRepo.getAssignmentsForGuru(user.uid).collect { list ->
+                schoolRepo.getAssignmentsForGuru(user.uid).collect { list ->
                     _assignments.value = list
                 }
             } else if (user.role == "siswa" && user.waliKelasId != null) {
-                assignmentRepo.getAssignmentsForSiswa(user.waliKelasId).collect { list ->
+                schoolRepo.getAssignmentsForSiswa(user.waliKelasId).collect { list ->
                     _assignments.value = list
                 }
             }
         }
 
         viewModelScope.launch {
-            eventRepo.getEvents().collect { list ->
+            schoolRepo.getEvents().collect { list ->
                 _events.value = list
             }
         }

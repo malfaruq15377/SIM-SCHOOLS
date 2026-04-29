@@ -1,10 +1,10 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.data.remote.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class UserModel(
+data class UserResponse(
     val uid: String = "",
     val name: String = "",
     val role: String = "", // "guru" or "siswa"

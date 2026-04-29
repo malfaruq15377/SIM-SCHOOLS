@@ -2,25 +2,31 @@ package com.example.simsekolah.ui.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.data.repository.AuthRepository
-import com.example.simsekolah.data.repository.ScheduleRepository
-import com.example.simsekolah.model.ScheduleModel
+import com.example.simsekolah.data.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.ScheduleResponse
+import com.example.simsekolah.data.remote.response.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ScheduleViewModel(
-    private val scheduleRepo: ScheduleRepository,
-    private val authRepo: AuthRepository
+    private val schoolRepo: SchoolRepository
 ) : ViewModel() {
 
-    private val _schedules = MutableStateFlow<List<ScheduleModel>>(emptyList())
-    val schedules: StateFlow<List<ScheduleModel>> = _schedules.asStateFlow()
+    private val _userProfile = MutableStateFlow<UserResponse?>(null)
+    val userProfile = _userProfile.asStateFlow()
+
+    private val _schedules = MutableStateFlow<List<ScheduleResponse>>(emptyList())
+    val schedules: StateFlow<List<ScheduleResponse>> = _schedules.asStateFlow()
+
+    private val _updateStatus = MutableSharedFlow<Result<Unit>>()
+    val updateStatus = _updateStatus.asSharedFlow()
 
     init {
-        val uid = authRepo.getCurrentUserUid()
+        val uid = schoolRepo.getCurrentUserUid()
         if (uid != null) {
             viewModelScope.launch {
-                authRepo.getUserProfileRealtime(uid).collect { user ->
+                schoolRepo.getUserProfileRealtime(uid).collect { user ->
+                    _userProfile.value = user
                     user?.kelasId?.let { kelasId ->
                         loadSchedules(kelasId)
                     }
@@ -31,9 +37,15 @@ class ScheduleViewModel(
 
     private fun loadSchedules(kelasId: String) {
         viewModelScope.launch {
-            scheduleRepo.getSchedulesByKelas(kelasId).collect { list ->
+            schoolRepo.getSchedulesByKelas(kelasId).collect { list ->
                 _schedules.value = list
             }
+        }
+    }
+
+    fun updateSchedule(schedule: ScheduleResponse) {
+        viewModelScope.launch {
+            _updateStatus.emit(schoolRepo.updateSchedule(schedule))
         }
     }
 }

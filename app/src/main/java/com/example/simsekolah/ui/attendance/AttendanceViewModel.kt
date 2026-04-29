@@ -2,25 +2,23 @@ package com.example.simsekolah.ui.attendance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simsekolah.data.repository.AttendanceRepository
-import com.example.simsekolah.data.repository.AuthRepository
-import com.example.simsekolah.model.AttendanceModel
-import com.example.simsekolah.model.UserModel
+import com.example.simsekolah.data.repository.SchoolRepository
+import com.example.simsekolah.data.remote.response.AttendanceResponse
+import com.example.simsekolah.data.remote.response.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AttendanceViewModel(
-    private val attendanceRepo: AttendanceRepository,
-    private val authRepo: AuthRepository
+    private val schoolRepo: SchoolRepository
 ) : ViewModel() {
 
-    private val _userProfile = MutableStateFlow<UserModel?>(null)
-    val userProfile: StateFlow<UserModel?> = _userProfile.asStateFlow()
+    private val _userProfile = MutableStateFlow<UserResponse?>(null)
+    val userProfile: StateFlow<UserResponse?> = _userProfile.asStateFlow()
 
-    private val _students = MutableStateFlow<List<UserModel>>(emptyList())
-    val students: StateFlow<List<UserModel>> = _students.asStateFlow()
+    private val _students = MutableStateFlow<List<UserResponse>>(emptyList())
+    val students: StateFlow<List<UserResponse>> = _students.asStateFlow()
 
     private val _operationStatus = MutableSharedFlow<Result<Unit>>()
     val operationStatus = _operationStatus.asSharedFlow()
@@ -29,10 +27,10 @@ class AttendanceViewModel(
     val isAttendanceActive: StateFlow<Boolean> = _isAttendanceActive.asStateFlow()
 
     init {
-        val uid = authRepo.getCurrentUserUid()
+        val uid = schoolRepo.getCurrentUserUid()
         if (uid != null) {
             viewModelScope.launch {
-                authRepo.getUserProfileRealtime(uid).collect { user ->
+                schoolRepo.getUserProfileRealtime(uid).collect { user ->
                     _userProfile.value = user
                     if (user?.role == "guru") {
                         loadStudents(user.uid)
@@ -46,7 +44,7 @@ class AttendanceViewModel(
 
     private fun loadStudents(guruId: String) {
         viewModelScope.launch {
-            _students.value = attendanceRepo.getStudentsForGuru(guruId)
+            _students.value = schoolRepo.getStudentsForGuru(guruId)
         }
     }
 
@@ -56,9 +54,9 @@ class AttendanceViewModel(
         _isAttendanceActive.value = hour >= 8
     }
 
-    fun submitAttendanceGuru(attendances: List<AttendanceModel>) {
+    fun submitAttendanceGuru(attendances: List<AttendanceResponse>) {
         viewModelScope.launch {
-            _operationStatus.emit(attendanceRepo.saveAttendanceBatch(attendances))
+            _operationStatus.emit(schoolRepo.saveAttendanceBatch(attendances))
         }
     }
 
@@ -77,7 +75,7 @@ class AttendanceViewModel(
 
             val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             
-            val attendance = AttendanceModel(
+            val attendance = AttendanceResponse(
                 studentId = user.uid,
                 studentName = user.name,
                 kelasId = user.kelasId ?: "",
@@ -86,7 +84,7 @@ class AttendanceViewModel(
                 date = date
             )
             
-            _operationStatus.emit(attendanceRepo.submitStudentAttendance(attendance))
+            _operationStatus.emit(schoolRepo.submitStudentAttendance(attendance))
         }
     }
 }

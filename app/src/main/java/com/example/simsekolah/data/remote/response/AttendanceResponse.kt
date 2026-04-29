@@ -1,10 +1,10 @@
-package com.example.simsekolah.model
+package com.example.simsekolah.data.remote.response
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class AttendanceModel(
+data class AttendanceResponse(
     val id: String = "",
     val studentId: String = "",
     val studentName: String = "",
@@ -12,5 +12,5 @@ data class AttendanceModel(
     val guruId: String = "", // waliKelasId
     val status: String = "", // "Present", "Late", "Sick", "Permission"
     val timestamp: Long = System.currentTimeMillis(),
-    val date: String = "" // formatted date "yyyy-MM-dd" for easy query
+    val date: String = "" // formatted date "yyyy-MM-dd"
 ) : Parcelable

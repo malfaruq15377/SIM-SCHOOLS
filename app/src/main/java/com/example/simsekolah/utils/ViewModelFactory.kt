@@ -2,7 +2,7 @@ package com.example.simsekolah.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.simsekolah.data.repository.*
+import com.example.simsekolah.data.repository.SchoolRepository
 import com.example.simsekolah.ui.assignment.AssignmentsViewModel
 import com.example.simsekolah.ui.attendance.AttendanceViewModel
 import com.example.simsekolah.ui.home.HomeViewModel
@@ -13,36 +13,31 @@ import com.example.simsekolah.ui.event.EventViewModel
 
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory private constructor(
-    private val authRepo: AuthRepository,
-    private val assignmentRepo: AssignmentRepository,
-    private val notificationRepo: NotificationRepository,
-    private val attendanceRepo: AttendanceRepository,
-    private val scheduleRepo: ScheduleRepository,
-    private val eventRepo: EventRepository
+    private val schoolRepo: SchoolRepository
 ) : ViewModelProvider.NewInstanceFactory() {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> {
-                HomeViewModel(authRepo, assignmentRepo, eventRepo) as T
+                HomeViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(AssignmentsViewModel::class.java) -> {
-                AssignmentsViewModel(assignmentRepo, authRepo, notificationRepo) as T
+                AssignmentsViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(NotificationViewModel::class.java) -> {
-                NotificationViewModel(notificationRepo, authRepo) as T
+                NotificationViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(AttendanceViewModel::class.java) -> {
-                AttendanceViewModel(attendanceRepo, authRepo) as T
+                AttendanceViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(ScheduleViewModel::class.java) -> {
-                ScheduleViewModel(scheduleRepo, authRepo) as T
+                ScheduleViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
-                ProfileViewModel(authRepo, assignmentRepo) as T
+                ProfileViewModel(schoolRepo) as T
             }
             modelClass.isAssignableFrom(EventViewModel::class.java) -> {
-                EventViewModel(eventRepo, authRepo) as T
+                EventViewModel(schoolRepo) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }
@@ -54,14 +49,7 @@ class ViewModelFactory private constructor(
 
         fun getInstance(): ViewModelFactory =
             instance ?: synchronized(this) {
-                instance ?: ViewModelFactory(
-                    AuthRepository(),
-                    AssignmentRepository(),
-                    NotificationRepository(),
-                    AttendanceRepository(),
-                    ScheduleRepository(),
-                    EventRepository()
-                )
+                instance ?: ViewModelFactory(SchoolRepository())
             }.also { instance = it }
     }
 }
