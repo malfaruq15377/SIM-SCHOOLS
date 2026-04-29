@@ -8,6 +8,8 @@ import com.example.simsekolah.data.remote.retrofit.ApiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -168,5 +170,30 @@ class SchoolRepository(
 
     fun getGuru(): Flow<BaseResponse<List<GuruItem>>> = flow {
         emit(apiService.getGuru())
+    }
+
+    fun getAbsensi(siswaId: Int): Flow<BaseResponse<List<AbsensiItem>>> = flow {
+        emit(apiService.getAbsensi(siswaId))
+    }
+
+    fun postAbsensi(siswaId: Int, status: String, tanggal: String, jamMasuk: String?, keterangan: String?, metode: String): Flow<BaseResponse<AbsensiItem>> = flow {
+        val jsonObject = JsonObject().apply {
+            addProperty("siswaId", siswaId)
+            addProperty("status", status)
+            addProperty("tanggal", tanggal)
+            addProperty("jamMasuk", jamMasuk)
+            addProperty("keterangan", keterangan)
+            addProperty("metode", metode)
+        }
+        emit(apiService.postAbsensi(jsonObject))
+    }
+
+    fun postAbsensiBulk(attendanceList: List<JsonObject>): Flow<BaseResponse<String>> = flow {
+        val jsonArray = JsonArray()
+        attendanceList.forEach { jsonArray.add(it) }
+        val request = JsonObject().apply {
+            add("data", jsonArray)
+        }
+        emit(apiService.postAbsensiBulk(request))
     }
 }

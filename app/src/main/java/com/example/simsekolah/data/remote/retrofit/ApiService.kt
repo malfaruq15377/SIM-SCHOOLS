@@ -31,6 +31,16 @@ interface ApiService {
         @Query("siswaId") siswaId: Int
     ): BaseResponse<List<AbsensiItem>>
 
+    @POST("absensi")
+    suspend fun postAbsensi(
+        @Body request: JsonObject
+    ): BaseResponse<AbsensiItem>
+
+    @POST("absensi/bulk")
+    suspend fun postAbsensiBulk(
+        @Body request: JsonObject
+    ): BaseResponse<String>
+
     @GET("nilai")
     suspend fun getNilai(
         @Query("siswaId") siswaId: Int

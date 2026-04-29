@@ -26,8 +26,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SIMSekolah"
         android:usesCleartextTraffic="true">
-        
-        <receiver android:name=".receiver.AlarmReceiver" />
 
         <activity
             android:name=".ui.main.SubmitTugasActivity"
@@ -35,9 +33,7 @@
         <activity
             android:name=".ui.settings.SettingActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.form.FormUserActivity"
-            android:exported="false" />
+
         <activity
             android:name=".ui.auth.SplashScreenActivity"
             android:theme="@style/Theme.App.Starting"

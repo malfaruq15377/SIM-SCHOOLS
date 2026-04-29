@@ -40,7 +40,7 @@ class TakeAttendanceFragment : Fragment() {
         setupHeader()
         observeViewModel()
         
-        viewModel.loadStudents() // Need to implement this in ViewModel
+        viewModel.loadStudents()
     }
 
     private fun setupRecyclerView() {
@@ -49,9 +49,12 @@ class TakeAttendanceFragment : Fragment() {
         binding.rvStudentAttendance.adapter = adapter
         
         binding.btnSaveAttendance.setOnClickListener {
-            val data = adapter.getAttendanceData()
-            // Logic to save all attendance
-            Toast.makeText(requireContext(), "Attendance saved for ${data.size} students", Toast.LENGTH_SHORT).show()
+            val attendanceData = adapter.getAttendanceData()
+            if (attendanceData.isNotEmpty()) {
+                viewModel.saveBulkAttendance(attendanceData)
+            } else {
+                Toast.makeText(requireContext(), "No student data available", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -67,6 +70,23 @@ class TakeAttendanceFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.students.collect { list ->
                 adapter.submitList(list)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.bulkAttendanceResult.collect { result ->
+                result.onSuccess {
+                    Toast.makeText(requireContext(), "Attendance saved successfully!", Toast.LENGTH_SHORT).show()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }.onFailure {
+                    Toast.makeText(requireContext(), "Failed to save: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.collect { isLoading ->
+                binding.progressbar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
         }
     }

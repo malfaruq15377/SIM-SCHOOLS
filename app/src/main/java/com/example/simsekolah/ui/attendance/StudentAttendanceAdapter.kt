@@ -19,34 +19,51 @@ class StudentAttendanceAdapter : ListAdapter<SiswaItem, StudentAttendanceAdapter
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val student = getItem(position)
+        // Initialize map with default value if not present
+        if (!attendanceMap.containsKey(student.id)) {
+            attendanceMap[student.id] = "hadir"
+        }
+        holder.bind(student)
     }
 
-    fun getAttendanceData(): Map<Int, String> = attendanceMap
+    fun getAttendanceData(): List<AttendancePostData> {
+        return attendanceMap.map { entry ->
+            AttendancePostData(
+                siswaId = entry.key,
+                status = entry.value
+            )
+        }
+    }
+
+    data class AttendancePostData(
+        val siswaId: Int,
+        val status: String
+    )
 
     inner class ViewHolder(private val binding: ItemStudentAttendanceBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(student: SiswaItem) {
             binding.tvStudentName.text = student.name
             binding.tvStudentEmail.text = student.email
 
-            // Reset selection to avoid recycling issues
             binding.rgStatus.setOnCheckedChangeListener(null)
             
-            val currentStatus = attendanceMap[student.id] ?: "Present"
-            when (currentStatus) {
-                "Present" -> binding.rbPresent.isChecked = true
-                "Late" -> binding.rbLate.isChecked = true
-                "Sick" -> binding.rbSick.isChecked = true
-                "Permission" -> binding.rbPermission.isChecked = true
+            val currentStatus = attendanceMap[student.id] ?: "hadir"
+            when (currentStatus.lowercase()) {
+                "hadir" -> binding.rbPresent.isChecked = true
+                "late" -> binding.rbLate.isChecked = true
+                "sakit" -> binding.rbSick.isChecked = true
+                "izin" -> binding.rbPermission.isChecked = true
+                else -> binding.rbPresent.isChecked = true
             }
 
             binding.rgStatus.setOnCheckedChangeListener { _, checkedId ->
                 val status = when (checkedId) {
-                    R.id.rbPresent -> "Present"
-                    R.id.rbLate -> "Late"
-                    R.id.rbSick -> "Sick"
-                    R.id.rbPermission -> "Permission"
-                    else -> "Present"
+                    R.id.rbPresent -> "hadir"
+                    R.id.rbLate -> "late"
+                    R.id.rbSick -> "sakit"
+                    R.id.rbPermission -> "izin"
+                    else -> "hadir"
                 }
                 attendanceMap[student.id] = status
             }
